@@ -55,7 +55,7 @@ section{display:none;padding-top:14px}section.on{display:block}
 .t-maikel{background:color-mix(in srgb,var(--mk) 14%,transparent);color:var(--mk)}.t-jazmin{background:color-mix(in srgb,var(--jz) 14%,transparent);color:var(--jz)}
 .row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0;padding-top:0}
 .ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:14px}
-.c-needs{background:color-mix(in srgb,var(--mk) 14%,transparent);color:var(--mk)}.c-wants{background:color-mix(in srgb,#8b5cf6 16%,transparent);color:#8b5cf6}.c-savings{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}.c-ant{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.c-needs{background:color-mix(in srgb,var(--mk) 14%,transparent);color:var(--mk)}.c-wants{background:color-mix(in srgb,#8b5cf6 16%,transparent);color:#8b5cf6}.c-savings{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}.c-inc{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.c-ant{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
 .row .m{flex:1;min-width:0}.row .m b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.row .m small{color:var(--mut);font-size:12px}
 .row .a{font-weight:700;font-size:14.5px;white-space:nowrap}
 .x{color:var(--mut);padding:8px}.x:hover{color:var(--bad)}
@@ -132,7 +132,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
     </div>
   </div>
   <div class="card">
-    <h3>Regla 50 / 30 / 20 <button class="tag t-maikel" onclick="openIncome()"><i class="fa-solid fa-pen"></i> Ingresos</button></h3>
+    <h3>Regla 50 / 30 / 20 <span style="display:flex;gap:6px"><button class="tag t-maikel" onclick="openIncome()"><i class="fa-solid fa-pen"></i> Ingresos</button><button class="tag c-inc" onclick="openExtra()"><i class="fa-solid fa-plus"></i> Extra</button></span></h3>
     <div id="rules"></div>
   </div>
   <div class="card">
@@ -177,7 +177,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
   <div class="g2"><div><label>Monto (Gs.)</label><input class="in" id="tx-amount" type="number" inputmode="numeric" required placeholder="150000"></div>
   <div><label>Fecha</label><input class="in" id="tx-date" type="date" required></div></div>
   <div class="g2"><div><label>Responsable</label><select class="in" id="tx-owner"><option value="maikel">Maikel</option><option value="jazmin">Jazmín</option></select></div>
-  <div><label>Categoría</label><select class="in" id="tx-category"><option value="needs">Necesidad (50%)</option><option value="wants">Deseo (30%)</option><option value="savings">Ahorro (20%)</option><option value="ant">Gasto hormiga</option></select></div></div>
+  <div><label>Categoría</label><select class="in" id="tx-category"><option value="needs">Necesidad (50%)</option><option value="wants">Deseo (30%)</option><option value="savings">Ahorro (20%)</option><option value="ant">Gasto hormiga</option><option value="income">Ingreso extra (+)</option></select></div></div>
   <button class="btn">Guardar movimiento</button>
 </form></div>
 
@@ -215,7 +215,7 @@ const short=n=>{const a=Math.abs(n);return (n<0?'-':'')+(a>=1e6?(a/1e6).toFixed(
 const mKey=d=>new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString('sv').slice(0,7);
 const mLabel=(k,long)=>{const[y,m]=k.split('-');return new Date(+y,+m-1,1).toLocaleDateString('es-PY',long?{month:'long',year:'numeric'}:{month:'short',year:'2-digit'}).replace('.','')};
 const addM=(k,n)=>{const[y,m]=k.split('-');return mKey(new Date(+y,+m-1+n,1))};
-const CAT={needs:['Necesidad','fa-house','c-needs'],wants:['Deseo','fa-gamepad','c-wants'],savings:['Ahorro','fa-piggy-bank','c-savings'],ant:['Hormiga','fa-bug','c-ant']};
+const CAT={needs:['Necesidad','fa-house','c-needs'],wants:['Deseo','fa-gamepad','c-wants'],savings:['Ahorro','fa-piggy-bank','c-savings'],ant:['Hormiga','fa-bug','c-ant'],income:['Ingreso extra','fa-arrow-trend-up','c-inc']};
 const NAME={maikel:'Maikel',jazmin:'Jazmín'};
 
 // ---- Estado ----
@@ -228,14 +228,16 @@ const S=()=>window.appState, save=()=>window.saveAppState&&window.saveAppState()
 const inMode=o=>S().viewMode==='couple'||o===S().activeProfile;
 function incomeOf(k){const i=S().incomes[k]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
  return S().viewMode==='couple'?(+i.maikel||0)+(+i.jazmin||0):(+i[S().activeProfile]||0)}
-function stats(k){const s={inc:incomeOf(k),needs:0,wants:0,ant:0,sav:0};
- S().transactions.forEach(t=>{if(String(t.date).slice(0,7)===k&&inMode(t.owner))s[t.category]+=+t.amount||0});
+function stats(k){const s={inc:incomeOf(k),needs:0,wants:0,ant:0,sav:0,extra:0};
+ S().transactions.forEach(t=>{if(String(t.date).slice(0,7)===k&&inMode(t.owner))s[t.category==='income'?'extra':t.category]+=+t.amount||0});
+ s.inc+=s.extra;
  s.exp=s.needs+s.wants+s.ant;s.bal=s.inc-s.exp-s.sav;return s}
 
 // ---- UI base ----
 function toggleTheme(){const r=document.documentElement,d=r.dataset.theme==='dark';r.dataset.theme=d?'light':'dark';$('theme-i').className='fa-solid '+(d?'fa-moon':'fa-sun');if(ui.tab==='cmp')renderCompare()}
 const openModal=id=>{if(id==='m-tx')$('tx-date').value=(ui.month===nowKey?new Date().toLocaleDateString('sv'):ui.month+'-01');$(id).classList.add('on')};
 const closeModal=id=>$(id).classList.remove('on');
+function openExtra(){openModal('m-tx');$('tx-category').value='income';$('tx-owner').value=S().activeProfile;$('tx-description').placeholder='Ej. Bono, venta, changa'}
 function openIncome(){const i=S().incomes[ui.month]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
  $('income-maikel').value=i.maikel||'';$('income-jazmin').value=i.jazmin||'';$('inc-month').textContent=mLabel(ui.month,1);openModal('m-income')}
 function selectProfile(p){S().activeProfile=p;S().viewMode='individual';$('login').classList.add('off');renderAll()}
@@ -265,7 +267,7 @@ function renderTx(){
  $('tx-chips').innerHTML=[['all','Todos']].concat(Object.entries(CAT).map(([k,v])=>[k,v[0]])).map(([k,n])=>`<button class="chip ${ui.filter===k?'on':''}" onclick="ui.filter='${k}';renderTx()">${n}</button>`).join('');
  const l=S().transactions.filter(t=>String(t.date).slice(0,7)===ui.month&&inMode(t.owner)&&(ui.filter==='all'||t.category===ui.filter)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  $('tx-list').innerHTML=l.length?l.map(t=>{const c=CAT[t.category];
-  return `<div class="row"><div class="ico ${c[2]}"><i class="fa-solid ${c[1]}"></i></div><div class="m"><b>${esc(t.description)}</b><small>${String(t.date).slice(8,10)} ${mLabel(String(t.date).slice(0,7))} · ${c[0]} · ${NAME[t.owner]}</small></div><div class="a num">${formatGs(t.amount)}</div><button class="x" onclick="deleteTransaction('${esc(t.id)}')" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button></div>`}).join(''):'<div class="empty">No hay movimientos en este mes. Toca + para registrar uno.</div>'}
+  return `<div class="row"><div class="ico ${c[2]}"><i class="fa-solid ${c[1]}"></i></div><div class="m"><b>${esc(t.description)}</b><small>${String(t.date).slice(8,10)} ${mLabel(String(t.date).slice(0,7))} · ${c[0]} · ${NAME[t.owner]}</small></div><div class="a num ${t.category==='income'?'pos':''}">${t.category==='income'?'+ ':''}${formatGs(t.amount)}</div><button class="x" onclick="deleteTransaction('${esc(t.id)}')" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button></div>`}).join(''):'<div class="empty">No hay movimientos en este mes. Toca + para registrar uno.</div>'}
 let chart;
 function renderCompare(){
  $('rng-chips').innerHTML=[3,6,12].map(n=>`<button class="chip ${ui.range===n?'on':''}" onclick="ui.range=${n};renderCompare()">${n} meses</button>`).join('');
@@ -310,19 +312,24 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-app
 import{getAuth,signInAnonymously,signInWithCustomToken,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import{getFirestore,doc,onSnapshot,setDoc}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 const appId=typeof __app_id!=='undefined'?__app_id:'maikel-jazmin-finanzas';
-const firebaseConfig=typeof __firebase_config!=='undefined'?JSON.parse(__firebase_config):{apiKey:"demo-key",authDomain:"demo.firebaseapp.com",projectId:"demo-project",storageBucket:"demo.appspot.com",messagingSenderId:"000000000",appId:"1:000000000:web:000000000"};
+// ====== PEGA AQUÍ LA CONFIGURACIÓN DE TU PROYECTO FIREBASE ======
+const MY_FIREBASE_CONFIG={apiKey:"AIzaSyDDXMrbjx4nMXcUMP2rlx8b123U9LkaER4",authDomain:"myjfinanz.firebaseapp.com",projectId:"myjfinanz",storageBucket:"myjfinanz.firebasestorage.app",messagingSenderId:"949117469445",appId:"1:949117469445:web:b450b3e483ec5fbc83ad6c"};
+// =================================================================
+const firebaseConfig=typeof __firebase_config!=='undefined'?JSON.parse(__firebase_config):MY_FIREBASE_CONFIG;
+const configured=!!firebaseConfig.apiKey&&!/PEGAR|demo-key/.test(firebaseConfig.apiKey)&&!!firebaseConfig.projectId;
 let app,db,auth,ready=false,listening=false;
-const ref=()=>doc(db,'artifacts',appId,'public','data','budget_shared');
-function status(ok){const d=document.getElementById('fb-dot');d.className='dot'+(ok?' on':'');
- document.getElementById('login-status').textContent=ok?'Sincronizado con Firebase':'Modo local (sin conexión)';
- document.getElementById('fb-text').textContent=ok?'Sincronización en tiempo real activa.':'Modo local. Los cambios no se comparten hasta conectar.'}
-async function initFirebase(){try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+const ref=()=>doc(db,'artifacts',appId,'public','data','budget_shared','main');
+function status(ok,msg){const d=document.getElementById('fb-dot');d.className='dot'+(ok?' on':'');
+ document.getElementById('login-status').textContent=ok?'Sincronizado con Firebase':'Modo local (sin sincronizar)';
+ document.getElementById('fb-text').textContent=ok?'Sincronización en tiempo real activa.':(msg||'Modo local. Los cambios no se comparten.')}
+async function initFirebase(){if(!configured){status(false,'Falta pegar la configuración de Firebase en index.html.');return}
+ try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
  if(typeof __initial_auth_token!=='undefined'&&__initial_auth_token)await signInWithCustomToken(auth,__initial_auth_token);else await signInAnonymously(auth);
- onAuthStateChanged(auth,u=>{if(u){ready=true;status(true);listen()}})}catch(e){console.warn('Modo local:',e);status(false)}}
+ onAuthStateChanged(auth,u=>{if(u){ready=true;status(true);listen()}})}catch(e){console.warn('Modo local:',e);status(false,e.code==='auth/operation-not-allowed'?'Activa el acceso Anónimo en Firebase (Authentication).':'No se pudo conectar: '+(e.code||e.message))}}
 function listen(){if(listening)return;listening=true;
  onSnapshot(ref(),snap=>{if(snap.exists()){const d=snap.data(),s=window.appState;
   s.incomeMaikel=d.incomeMaikel??s.incomeMaikel;s.incomeJazmin=d.incomeJazmin??s.incomeJazmin;s.incomes=d.incomes??s.incomes;
-  s.transactions=d.transactions??s.transactions;s.creditCards=d.creditCards??s.creditCards;renderAll()}else save()},e=>console.error(e))}
+  s.transactions=d.transactions??s.transactions;s.creditCards=d.creditCards??s.creditCards;renderAll()}else save()},e=>{console.error(e);status(false,'Sin permiso: revisa las reglas de Firestore.')})}
 async function save(){if(!ready||!db)return;const s=window.appState;
  try{await setDoc(ref(),{incomeMaikel:s.incomeMaikel,incomeJazmin:s.incomeJazmin,incomes:s.incomes,transactions:s.transactions,creditCards:s.creditCards,lastUpdated:new Date().toISOString()},{merge:true})}catch(e){console.error(e)}}
 window.saveAppState=save;window.initFirebase=initFirebase;initFirebase();
