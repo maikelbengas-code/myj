@@ -3,389 +3,321 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Gestión MyJ</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#101828">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Gestión MyJ">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#101826">
+<title>Finanzas M&J</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
 <style>
-:root{--bg:#F2F4F7;--sf:#fff;--ink:#101828;--mute:#667085;--line:#E4E7EC;--needs:#1D5FD1;--wants:#E4631A;--save:#0E9F6E;--card:#7C3AED;--over:#C81E1E;--acc:#101828;--onacc:#fff;--bo:.3;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1117;--sf:#161B22;--ink:#F0F3F6;--mute:#9AA4B2;--line:#262D38;--needs:#5B9BFF;--wants:#FF8A4C;--save:#34D399;--card:#A78BFA;--over:#FF6B6B;--acc:#F0F3F6;--onacc:#0D1117;--bo:.2}}
-:root[data-theme="dark"]{--bg:#0D1117;--sf:#161B22;--ink:#F0F3F6;--mute:#9AA4B2;--line:#262D38;--needs:#5B9BFF;--wants:#FF8A4C;--save:#34D399;--card:#A78BFA;--over:#FF6B6B;--acc:#F0F3F6;--onacc:#0D1117;--bo:.2}
+:root{--bg:#f3f4f7;--card:#fff;--ink:#121a2b;--mut:#6b7385;--line:#e4e7ee;--soft:#eef0f5;--mk:#2f5bea;--jz:#d63d7a;--ok:#0f9d74;--bad:#e5484d;--warn:#e59f0b;--nav:rgba(255,255,255,.92)}
+:root[data-theme=dark]{--bg:#0c121d;--card:#151d2c;--ink:#eef1f7;--mut:#8f98ad;--line:#243049;--soft:#1c2638;--mk:#6c8cff;--jz:#ff6fa5;--ok:#2dd4a0;--bad:#ff6b70;--warn:#f5b73b;--nav:rgba(21,29,44,.92)}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'Instrument Sans',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-.app{max-width:480px;margin:0 auto;padding:16px 16px 110px}
-h1,.big,.num{font-family:'Bricolage Grotesque','Instrument Sans',system-ui,sans-serif}
-h1{font-size:21px;font-weight:800;margin:0;line-height:1.1}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:72px;height:72px;object-fit:contain}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo{filter:brightness(1.7) saturate(1.15)}}
-:root[data-theme="dark"] .logo{filter:brightness(1.7) saturate(1.15)}
-.tag{margin:2px 0 0;font-size:13px;color:var(--mute)}
-h2{font-size:17px;font-weight:700;margin:0;font-family:'Bricolage Grotesque',system-ui,sans-serif}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--needs);outline-offset:2px}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.actions-top{display:flex;gap:6px}
-.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-weight:500;background:var(--sf);font-size:13px}
-.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:12px;padding:3px;margin-bottom:8px}
-.seg button{border:0;background:none;padding:9px;border-radius:10px;font-weight:600;color:var(--mute)}
-.seg button.on{background:var(--sf);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
-.user-bar{display:flex;gap:6px;margin-bottom:12px}
-.user-bar button{flex:1;border:1px solid var(--line);background:var(--sf);padding:8px;border-radius:10px;font-weight:600;font-size:13px;color:var(--mute)}
-.user-bar button.on{border-color:var(--acc);background:var(--acc);color:var(--onacc)}
-.hero{padding:20px 2px 8px}
-.lbl{margin:0;color:var(--mute);font-weight:500}
-.big{font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:4px 0 6px;font-variant-numeric:tabular-nums}
-.big.neg{color:var(--over)}
-.sub{margin:0 0 18px;color:var(--mute);font-size:13px}
-.bar{display:flex;gap:4px;height:16px}
-.bar i{display:block;background:color-mix(in srgb,var(--c) 22%,transparent);border-radius:5px;overflow:hidden}
-.bar b{display:block;height:100%;background:var(--c);transition:width .6s}
-.legend{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:6px}
-.card{background:color-mix(in srgb,var(--sf) 84%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
-.row+.row{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
-.rh{display:flex;justify-content:space-between;align-items:baseline}
-.rh b{font-size:16px;color:var(--c)}
-.hint{margin:2px 0 8px;color:var(--mute);font-size:12.5px}
-.track{height:10px;border-radius:6px;background:color-mix(in srgb,var(--c) 18%,transparent);overflow:hidden}
-.track i{display:block;height:100%;background:var(--c);border-radius:6px;transition:width .6s}
-.track.over i{background:var(--over);animation:pulse 1.6s ease-in-out infinite}
-.rn{display:flex;justify-content:space-between;margin-top:7px;font-size:13.5px;font-variant-numeric:tabular-nums}
-.neg{color:var(--over);font-weight:600}
-.ant-n{font-size:28px;font-weight:800;margin:6px 0 2px;font-variant-numeric:tabular-nums}
-.note{font-size:13px;color:var(--mute);margin:0 0 10px}
-.chips{display:flex;gap:6px}
-.chip{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 12px;font-size:13px}
-.chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
-.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
-.item:first-child{border-top:0}
-.item p{margin:0}.item .m{font-size:12.5px;color:var(--mute)}
-.item .a{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
-.x{border:0;background:none;color:var(--mute);font-size:20px;line-height:1;padding:6px 8px}
-.empty{color:var(--mute);font-size:13.5px;padding:6px 0}
-.reset{display:block;margin:18px auto 0;background:none;border:0;color:var(--mute);text-decoration:underline;font-size:13px}
-.dock{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 35%)}
-.cta{display:block;width:100%;max-width:448px;margin:0 auto;border:0;border-radius:14px;padding:15px;background:var(--acc);color:var(--onacc);font-weight:700;font-size:16px}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:9}
-.ov.open{display:flex;animation:fade .2s}
-.ov.open .sheet{animation:slide .3s cubic-bezier(.2,.8,.2,1)}
-.sheet{background:var(--sf);width:100%;max-width:480px;margin:0 auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:92%;overflow-y:auto}
-label.f{display:block;font-size:13px;font-weight:600;margin:14px 0 5px}
-input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
-.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-.cats label{cursor:pointer}.cats input{position:absolute;opacity:0}
-.cats span{display:block;text-align:center;padding:10px 4px;border:1.5px solid var(--line);border-radius:12px;font-size:13px;font-weight:600}
-.cats input:checked+span{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
-.cats input:focus-visible+span{outline:2px solid var(--needs)}
-.chk{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:14px}
-.chk input{width:20px;height:20px}
-.btns{display:flex;gap:10px;margin-top:20px}
-.btns button{flex:1;padding:13px;border-radius:12px;border:1px solid var(--line);background:none;font-weight:600}
-.btns .p{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
-.hide{display:none}
-.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.bg i{position:absolute;width:min(75vw,440px);aspect-ratio:1;border-radius:50%;filter:blur(60px);opacity:var(--bo);will-change:transform;animation:drift 20s ease-in-out infinite alternate}
-.bg i:nth-child(1){background:var(--needs);top:-12%;left:-22%}
-.bg i:nth-child(2){background:var(--wants);top:38%;right:-28%;animation-duration:26s;animation-delay:-9s}
-.bg i:nth-child(3){background:var(--save);bottom:-14%;left:-8%;animation-duration:23s;animation-delay:-15s}
-@keyframes drift{to{transform:translate(26vw,-14vh) scale(1.2)}}
-@keyframes pulse{50%{opacity:.6}}
-@keyframes fade{from{opacity:0}}
-@keyframes slide{from{transform:translateY(100%)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+body{font-family:Figtree,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.4;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--mk);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:8px}
+.brand{font-weight:800;font-size:17px;flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--mk),var(--jz));color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
+.ib{width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--mut);position:relative}
+.dot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--warn)}.dot.on{background:var(--ok)}
+.bar2{padding:10px 0 0}.bar2 .wrap{display:flex;gap:8px;align-items:center}
+.seg{display:flex;background:var(--soft);border-radius:12px;padding:3px;flex:1}
+.seg button{flex:1;padding:8px 6px;border-radius:9px;font-weight:600;font-size:13px;color:var(--mut);display:flex;gap:6px;justify-content:center;align-items:center}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.mon{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.mon button{width:36px;height:38px;color:var(--mut)}.mon b{min-width:104px;text-align:center;font-size:14px;text-transform:capitalize}
+section{display:none;padding-top:14px}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hero{padding:20px 18px;border-radius:22px;background:#121a2b;color:#fff;margin-bottom:12px;border:0}
+:root[data-theme=dark] .hero{background:#1d2a45}
+.hero small{color:#a9b3c9;font-size:13px}.hero .big{font-size:34px;font-weight:800;margin:2px 0 14px}
+.hero .big.neg{color:#ff8a8e}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.trio div{background:rgba(255,255,255,.08);border-radius:12px;padding:9px 10px}
+.trio span{display:block;font-size:11px;color:#a9b3c9}.trio b{font-size:13.5px;display:block;margin-top:1px;white-space:nowrap}
+.rule{margin-bottom:14px}.rule:last-child{margin:0}
+.rule .r{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;gap:8px}.rule .r span:first-child{font-weight:600}.rule .r span:last-child{color:var(--mut)}
+.track{height:9px;background:var(--soft);border-radius:9px;overflow:hidden}.track i{display:block;height:100%;border-radius:9px;transition:width .4s}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.t-maikel{background:color-mix(in srgb,var(--mk) 14%,transparent);color:var(--mk)}.t-jazmin{background:color-mix(in srgb,var(--jz) 14%,transparent);color:var(--jz)}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0;padding-top:0}
+.ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:14px}
+.c-needs{background:color-mix(in srgb,var(--mk) 14%,transparent);color:var(--mk)}.c-wants{background:color-mix(in srgb,#8b5cf6 16%,transparent);color:#8b5cf6}.c-savings{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}.c-ant{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.row .m{flex:1;min-width:0}.row .m b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.row .m small{color:var(--mut);font-size:12px}
+.row .a{font-weight:700;font-size:14.5px;white-space:nowrap}
+.x{color:var(--mut);padding:8px}.x:hover{color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:7px 13px;border-radius:20px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--mut)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.empty{text-align:center;color:var(--mut);font-size:13.5px;padding:22px 8px}
+.btn{width:100%;padding:13px;border-radius:13px;background:var(--ink);color:var(--bg);font-weight:700}
+.btn.sec{background:var(--soft);color:var(--ink)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px}.kpi span{font-size:12px;color:var(--mut)}.kpi b{display:block;font-size:16px;margin-top:2px}
+.tw{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:430px}
+th{color:var(--mut);font-weight:600;text-align:right;padding:6px 8px;font-size:12px}td{padding:10px 8px;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;text-transform:capitalize;font-weight:600;position:sticky;left:0;background:var(--card)}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+.cc{border-radius:16px;padding:16px;color:#fff;margin-bottom:12px;background:linear-gradient(135deg,#1c2b4d,#2f5bea)}.cc.jazmin{background:linear-gradient(135deg,#4a1d3a,#d63d7a)}
+.cc .h{display:flex;justify-content:space-between;font-size:13px;opacity:.9}.cc .v{font-size:20px;font-weight:800;margin:10px 0 2px}.cc .track{background:rgba(255,255,255,.22);margin-top:10px}.cc .track i{background:#fff}.cc .track i.hi{background:#ffb3b6}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--nav);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav .wrap{display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;padding:0 6px}
+nav button.t{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0;font-size:11px;font-weight:600;color:var(--mut)}nav button.t i{font-size:18px}nav button.t.on{color:var(--ink)}
+.fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--mk),var(--jz));color:#fff;font-size:20px;margin:-22px auto 0;box-shadow:0 6px 16px rgba(47,91,234,.4)}
+.ov{position:fixed;inset:0;z-index:40;background:rgba(8,12,22,.6);display:none;align-items:flex-end;justify-content:center}.ov.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow:auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@media(min-width:600px){.ov{align-items:center}.sheet{border-radius:22px}}
+.sheet h2{font-size:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0 5px}
+.in{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:16px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#login{position:fixed;inset:0;z-index:60;background:#0c121d;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}#login.off{display:none}
+#login h1{font-size:30px;font-weight:800;margin-bottom:6px}#login p{color:#8f98ad;margin-bottom:26px}
+.pf{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:380px}
+.pf button{background:#151d2c;border:2px solid #243049;border-radius:20px;padding:22px 10px;color:#fff;font-weight:700;font-size:17px}.pf i{display:block;font-size:34px;margin-bottom:10px}
+.pf .mk i{color:#6c8cff}.pf .jz i{color:#ff6fa5}.pf .mk:hover{border-color:#6c8cff}.pf .jz:hover{border-color:#ff6fa5}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
-<div class="app">
-  <div class="top">
-    <div class="brand">
-      <img class="logo" src="logo.png" alt="Logo de Maikel y Jazmin">
-      <div><h1>Gestión MyJ</h1><p class="tag" id="sync-status">Regla 50/30/20 (Cloud)</p></div>
-    </div>
-    <div class="actions-top">
-      <button class="ghost" onclick="openS('sync-cfg')">☁️ Cloud</button>
-      <button class="ghost" onclick="openS('cfg')">Sueldos</button>
-    </div>
+<div id="login">
+  <div class="logo" style="width:56px;height:56px;font-size:19px;border-radius:16px;margin-bottom:18px">M&J</div>
+  <h1>Finanzas M&J</h1><p>¿Quién entra hoy?</p>
+  <div class="pf">
+    <button class="mk" onclick="selectProfile('maikel')"><i class="fa-solid fa-user-ninja"></i>Maikel</button>
+    <button class="jz" onclick="selectProfile('jazmin')"><i class="fa-solid fa-user-astronaut"></i>Jazmín</button>
   </div>
-  
-  <div class="user-bar">
-    <button id="uA" onclick="setActiveUser('a')">👤 Maikel</button>
-    <button id="uP" onclick="setActiveUser('p')">👤 Jazmín</button>
-  </div>
-
-  <div class="seg"><button id="mI" onclick="setMode('ind')">Individual</button><button id="mJ" onclick="setMode('par')">En pareja</button></div>
-
-  <section class="hero">
-    <p class="lbl" id="hl"></p><p class="big" id="hb"></p><p class="sub" id="hs"></p>
-    <div class="bar" id="hbar"></div>
-    <div class="legend"><span>Necesidades 50%</span><span>Deseos 30%</span><span>Ahorro 20%</span></div>
-  </section>
-
-  <section class="card" id="cats"></section>
-
-  <!-- Módulo de Tarjetas de Crédito -->
-  <section class="card" style="--c:var(--card)">
-    <div class="rh"><b>Tarjeta de Crédito</b><button class="ghost" style="padding:4px 8px;font-size:12px" onclick="openS('cc-cfg')">Configurar</button></div>
-    <p class="hint" id="cc-hint">Límite y consumos del mes</p>
-    <div class="track"><i id="cc-bar" data-w="0" style="width:0"></i></div>
-    <div class="rn"><span id="cc-spent">Gastado Gs. 0</span><span id="cc-avail">Disponible Gs. 0</span></div>
-  </section>
-
-  <section class="card">
-    <h2>Gastos hormiga</h2>
-    <p class="ant-n" id="an"></p>
-    <p class="note" id="am"></p>
-    <div id="al"></div>
-  </section>
-
-  <section class="card">
-    <div class="top" style="margin:0 0 6px"><h2>Movimientos</h2>
-      <div class="chips"><button class="chip" id="fA" onclick="setF('all')">Todos</button><button class="chip" id="fH" onclick="setF('ant')">🐜 Hormiga</button></div>
-    </div>
-    <div id="tl"></div>
-  </section>
-  <button class="reset" onclick="resetAll()">Borrar todos los gastos</button>
+  <small id="login-status" style="margin-top:26px;color:#8f98ad">Modo local</small>
 </div>
 
-<div class="dock"><button class="cta" onclick="openS('exp')">Registrar gasto</button></div>
-
-<!-- Modal Registrar Gasto -->
-<div class="ov" id="exp" onclick="if(event.target===this)closeS('exp')"><form class="sheet" onsubmit="addExp(event)">
-  <h2>Registrar gasto</h2>
-  <label class="f" for="ed">Descripción</label><input type="text" id="ed" required placeholder="Ej.: Supermercado, tereré, cuota tarjeta">
-  <label class="f" for="ea">Monto en guaraníes</label><input type="text" id="ea" inputmode="numeric" required placeholder="Gs. 0" oninput="fm(this)">
-  <div id="eun"><label class="f" for="eu">Pagó / Usuario</label><select id="eu"></select></div>
-  <label class="f">Categoría</label>
-  <div class="cats">
-    <label style="--c:var(--needs)"><input type="radio" name="cat" value="needs" checked><span>Necesidad</span></label>
-    <label style="--c:var(--wants)"><input type="radio" name="cat" value="wants"><span>Deseo</span></label>
-    <label style="--c:var(--save)"><input type="radio" name="cat" value="savings"><span>Ahorro</span></label>
-    <label style="--c:var(--card)"><input type="radio" name="cat" value="credit"><span style="color:var(--card)">Tarjeta Cr.</span></label>
+<header class="top"><div class="wrap">
+  <div class="brand"><span class="logo">M&J</span>Finanzas</div>
+  <button class="ib" onclick="toggleTheme()" aria-label="Cambiar tema"><i id="theme-i" class="fa-solid fa-moon"></i></button>
+  <button class="ib" onclick="openModal('m-menu')" aria-label="Menú"><i class="fa-solid fa-ellipsis"></i><span id="fb-dot" class="dot"></span></button>
+</div>
+<div class="bar2"><div class="wrap">
+  <div class="seg">
+    <button id="v-ind" onclick="setViewMode('individual')"><i id="v-ico" class="fa-solid fa-user"></i><span id="v-name">Yo</span></button>
+    <button id="v-cou" onclick="setViewMode('couple')"><i class="fa-solid fa-heart"></i>En pareja</button>
   </div>
-  <label class="chk"><input type="checkbox" id="eh"> Es un gasto hormiga (chico, repetido y prescindible)</label>
-  <div class="btns"><button type="button" onclick="closeS('exp')">Cancelar</button><button class="p" type="submit">Guardar gasto</button></div>
-</form></div>
+  <div class="mon"><button onclick="shiftMonth(-1)" aria-label="Mes anterior"><i class="fa-solid fa-chevron-left"></i></button><b id="mon-label"></b><button onclick="shiftMonth(1)" aria-label="Mes siguiente"><i class="fa-solid fa-chevron-right"></i></button></div>
+</div></div></header>
 
-<!-- Modal Configurar Sueldos -->
-<div class="ov" id="cfg" onclick="if(event.target===this)closeS('cfg')"><form class="sheet" onsubmit="saveCfg(event)">
-  <h2>Sueldos</h2>
-  <label class="f" for="n1">Tu nombre</label><input type="text" id="n1" required>
-  <label class="f" for="s1">Tu sueldo mensual en guaraníes</label><input type="text" id="s1" inputmode="numeric" required oninput="fm(this)">
-  <label class="chk"><input type="checkbox" id="pc" onchange="tp()"> Sumar el sueldo de mi pareja</label>
-  <div id="pf">
-    <label class="f" for="n2">Nombre de tu pareja</label><input type="text" id="n2">
-    <label class="f" for="s2">Sueldo mensual de tu pareja en guaraníes</label><input type="text" id="s2" inputmode="numeric" oninput="fm(this)">
+<main class="wrap">
+<!-- RESUMEN -->
+<section id="s-home" class="on">
+  <div class="card hero">
+    <small>Balance del mes</small>
+    <div class="big num" id="h-bal">Gs. 0</div>
+    <div class="trio">
+      <div><span>Ingresos</span><b class="num" id="h-inc">0</b></div>
+      <div><span>Gastos</span><b class="num" id="h-exp">0</b></div>
+      <div><span>Ahorro</span><b class="num" id="h-sav">0</b></div>
+    </div>
   </div>
-  <div class="btns"><button type="button" onclick="closeS('cfg')">Cancelar</button><button class="p" type="submit">Guardar sueldos</button></div>
+  <div class="card">
+    <h3>Regla 50 / 30 / 20 <button class="tag t-maikel" onclick="openIncome()"><i class="fa-solid fa-pen"></i> Ingresos</button></h3>
+    <div id="rules"></div>
+  </div>
+  <div class="card">
+    <h3>Gastos hormiga <span class="tag c-ant" id="ant-badge">Gs. 0/año</span></h3>
+    <div id="ant-list"></div>
+  </div>
+</section>
+
+<!-- MOVIMIENTOS -->
+<section id="s-tx">
+  <div class="chips" id="tx-chips"></div>
+  <div class="card" id="tx-list"></div>
+</section>
+
+<!-- COMPARAR -->
+<section id="s-cmp">
+  <div class="chips" id="rng-chips"></div>
+  <div class="kpis" id="cmp-kpis"></div>
+  <div class="card"><h3>Ingresos vs. gastos</h3><div style="height:230px"><canvas id="chart"></canvas></div></div>
+  <div class="card"><h3>Detalle por mes</h3><div class="tw"><table id="cmp-table"></table></div></div>
+</section>
+
+<!-- TARJETAS -->
+<section id="s-cards">
+  <div id="cards-list"></div>
+  <button class="btn sec" onclick="openModal('m-card')"><i class="fa-solid fa-plus"></i> Agregar tarjeta</button>
+</section>
+</main>
+
+<nav><div class="wrap">
+  <button class="t on" data-tab="home" onclick="setTab('home')"><i class="fa-solid fa-chart-pie"></i>Resumen</button>
+  <button class="t" data-tab="tx" onclick="setTab('tx')"><i class="fa-solid fa-list"></i>Movimientos</button>
+  <button class="fab" onclick="openModal('m-tx')" aria-label="Registrar movimiento"><i class="fa-solid fa-plus"></i></button>
+  <button class="t" data-tab="cmp" onclick="setTab('cmp')"><i class="fa-solid fa-chart-column"></i>Comparar</button>
+  <button class="t" data-tab="cards" onclick="setTab('cards')"><i class="fa-solid fa-credit-card"></i>Tarjetas</button>
+</div></nav>
+
+<!-- MODALES -->
+<div class="ov" id="m-tx" onclick="if(event.target===this)closeModal('m-tx')"><form class="sheet" onsubmit="handleTransactionSubmit(event)">
+  <h2>Nuevo movimiento <button type="button" class="x" onclick="closeModal('m-tx')"><i class="fa-solid fa-xmark"></i></button></h2>
+  <label>Concepto</label><input class="in" id="tx-description" required placeholder="Ej. Supermercado">
+  <div class="g2"><div><label>Monto (Gs.)</label><input class="in" id="tx-amount" type="number" inputmode="numeric" required placeholder="150000"></div>
+  <div><label>Fecha</label><input class="in" id="tx-date" type="date" required></div></div>
+  <div class="g2"><div><label>Responsable</label><select class="in" id="tx-owner"><option value="maikel">Maikel</option><option value="jazmin">Jazmín</option></select></div>
+  <div><label>Categoría</label><select class="in" id="tx-category"><option value="needs">Necesidad (50%)</option><option value="wants">Deseo (30%)</option><option value="savings">Ahorro (20%)</option><option value="ant">Gasto hormiga</option></select></div></div>
+  <button class="btn">Guardar movimiento</button>
 </form></div>
 
-<!-- Modal Configurar Tarjeta de Crédito -->
-<div class="ov" id="cc-cfg" onclick="if(event.target===this)closeS('cc-cfg')"><form class="sheet" onsubmit="saveCCfg(event)">
-  <h2>Límite Tarjeta de Crédito</h2>
-  <label class="f" for="cc-lim">Límite total de la tarjeta en Gs.</label><input type="text" id="cc-lim" inputmode="numeric" required oninput="fm(this)">
-  <div class="btns"><button type="button" onclick="closeS('cc-cfg')">Cancelar</button><button class="p" type="submit">Guardar Límite</button></div>
+<div class="ov" id="m-income" onclick="if(event.target===this)closeModal('m-income')"><form class="sheet" onsubmit="handleIncomeSubmit(event)">
+  <h2>Ingresos de <span id="inc-month" style="text-transform:capitalize;margin-left:6px"></span><button type="button" class="x" onclick="closeModal('m-income')"><i class="fa-solid fa-xmark"></i></button></h2>
+  <label>Maikel (Gs.)</label><input class="in" id="income-maikel" type="number" inputmode="numeric">
+  <label>Jazmín (Gs.)</label><input class="in" id="income-jazmin" type="number" inputmode="numeric">
+  <button class="btn">Guardar ingresos del mes</button>
 </form></div>
 
-<!-- Modal Configurar Nube -->
-<div class="ov" id="sync-cfg" onclick="if(event.target===this)closeS('sync-cfg')"><form class="sheet" onsubmit="saveSyncCfg(event)">
-  <h2>Sincronización en la Nube</h2>
-  <p class="note" style="margin-top:6px">Conecta Firebase Firestore para que Maikel y Jazmín vean los mismos datos en tiempo real.</p>
-  <label class="f" for="room-code">Código de Pareja Compartido</label><input type="text" id="room-code" required placeholder="ej. maikel-jazmin-2026">
-  <div class="btns"><button type="button" onclick="closeS('sync-cfg')">Cancelar</button><button class="p" type="submit">Conectar Nube</button></div>
+<div class="ov" id="m-card" onclick="if(event.target===this)closeModal('m-card')"><form class="sheet" onsubmit="handleCardSubmit(event)">
+  <h2>Nueva tarjeta <button type="button" class="x" onclick="closeModal('m-card')"><i class="fa-solid fa-xmark"></i></button></h2>
+  <label>Nombre</label><input class="in" id="card-name" required placeholder="Visa Itaú">
+  <label>Titular</label><select class="in" id="card-owner"><option value="maikel">Maikel</option><option value="jazmin">Jazmín</option></select>
+  <div class="g2"><div><label>Límite (Gs.)</label><input class="in" id="card-limit" type="number" inputmode="numeric" required></div>
+  <div><label>Usado (Gs.)</label><input class="in" id="card-used" type="number" inputmode="numeric" required></div></div>
+  <button class="btn">Guardar tarjeta</button>
 </form></div>
 
-<!-- Importación de Firebase SDK y lógica -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+<div class="ov" id="m-menu" onclick="if(event.target===this)closeModal('m-menu')"><div class="sheet">
+  <h2>Ajustes <button type="button" class="x" onclick="closeModal('m-menu')"><i class="fa-solid fa-xmark"></i></button></h2>
+  <div class="card" style="background:var(--soft);border:0"><b style="font-size:13px"><i class="fa-solid fa-cloud"></i> Sincronización</b><p id="fb-text" style="font-size:13px;color:var(--mut);margin-top:4px">Modo local.</p></div>
+  <button class="btn sec" style="margin-bottom:10px" onclick="reconnectFirebase()"><i class="fa-solid fa-rotate"></i> Reintentar sincronización</button>
+  <button class="btn sec" onclick="closeModal('m-menu');showProfileSelection()"><i class="fa-solid fa-right-from-bracket"></i> Cambiar de usuario</button>
+  <p style="text-align:center;font-size:12px;color:var(--mut);margin-top:14px">Finanzas M&J · v3.0.0</p>
+</div></div>
 
-const K='FINANZAS_503020_PYG_V2',D=864e5;
-const CATS=[{k:'needs',n:'Necesidades',p:50,h:'Alquiler, comida, servicios, salud'},{k:'wants',n:'Deseos',p:30,h:'Salidas, hobbies, viajes, caprichos'},{k:'savings',n:'Ahorro',p:20,h:'Fondo de emergencia, inversiones'}];
-const SH={needs:'Necesidad',wants:'Deseo',savings:'Ahorro',credit:'Tarjeta Cr.'};
-
-let S={activeUser:'a',mode:'ind',ccLimit:5000000,u:{a:{n:'Maikel',s:6000000},p:{on:true,n:'Jazmin',s:4500000}},e:[
-{id:'1',d:'Alquiler del departamento',m:2200000,c:'needs',u:'a',h:0,t:Date.now()-5*D},
-{id:'2',d:'Supermercado del mes',m:1100000,c:'needs',u:'p',h:0,t:Date.now()-4*D},
-{id:'3',d:'Café de paso',m:12000,c:'wants',u:'a',h:1,t:Date.now()-3*D},
-{id:'4',d:'Compra con tarjeta',m:350000,c:'credit',u:'a',h:0,t:Date.now()-2*D}]};
-
-let F='all';
-let roomCode = localStorage.getItem(K+'_ROOM') || 'maikel-jazmin-py';
-let unsubscribe = null;
-let db = null;
-let isRemoteUpdate = false;
-
-try{const r=localStorage.getItem(K);if(r)S=JSON.parse(r)}catch(e){}
-
-try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDummyKeyForDemoModeOnly99",
-    authDomain: "gestion-myj.firebaseapp.com",
-    projectId: "gestion-myj-default",
-    storageBucket: "gestion-myj.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123:web:abc"
-  };
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  initRealtimeSync();
-} catch(err) {
-  console.log("Modo local activo:", err);
-}
-
-function initRealtimeSync() {
-  if(!db) return;
-  if(unsubscribe) unsubscribe();
-  
-  const docRef = doc(db, "budgets", roomCode);
-  unsubscribe = onSnapshot(docRef, (docSnap) => {
-    if (docSnap.exists()) {
-      const remoteData = docSnap.data();
-      if(remoteData && remoteData.payload) {
-        isRemoteUpdate = true;
-        S = remoteData.payload;
-        localStorage.setItem(K, JSON.stringify(S));
-        render();
-        isRemoteUpdate = false;
-        document.getElementById('sync-status').textContent = '☁️ Sincronizado ('+roomCode+')';
-      }
-    } else {
-      syncToCloud();
-    }
-  }, (error) => {
-    document.getElementById('sync-status').textContent = '⚠️ Error Cloud (Offline)';
-  });
-}
-
-function syncToCloud() {
-  if(!db || isRemoteUpdate) return;
-  const docRef = doc(db, "budgets", roomCode);
-  setDoc(docRef, { payload: S, updatedAt: Date.now() }).catch(e => console.log(e));
-}
-
-const save = () => {
-  try{
-    localStorage.setItem(K, JSON.stringify(S));
-    syncToCloud();
-  }catch(e){}
-};
-
-const grp=n=>String(Math.abs(Math.round(n||0))).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-const gs=n=>(n<0?'-':'')+'Gs. '+grp(n);
-const num=v=>+String(v).replace(/\D/g,'')||0;
-const fm=el=>{el.value=el.value?grp(num(el.value)):''};
-const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+<script>
 const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const formatGs=n=>'Gs. '+Math.round(n||0).toLocaleString('es-PY');
+const short=n=>{const a=Math.abs(n);return (n<0?'-':'')+(a>=1e6?(a/1e6).toFixed(1).replace('.0','')+' M':a>=1e3?Math.round(a/1e3)+' mil':Math.round(a))};
+const mKey=d=>new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString('sv').slice(0,7);
+const mLabel=(k,long)=>{const[y,m]=k.split('-');return new Date(+y,+m-1,1).toLocaleDateString('es-PY',long?{month:'long',year:'numeric'}:{month:'short',year:'2-digit'}).replace('.','')};
+const addM=(k,n)=>{const[y,m]=k.split('-');return mKey(new Date(+y,+m-1+n,1))};
+const CAT={needs:['Necesidad','fa-house','c-needs'],wants:['Deseo','fa-gamepad','c-wants'],savings:['Ahorro','fa-piggy-bank','c-savings'],ant:['Hormiga','fa-bug','c-ant']};
+const NAME={maikel:'Maikel',jazmin:'Jazmín'};
 
-function ctx(){
-  const j=S.mode==='par'&&S.u.p.on;
-  const activeUser = S.activeUser || 'a';
-  // Si está en modo individual, filtramos por el usuario activo seleccionado
-  const ex = S.e.filter(x => j || x.u === activeUser);
-  const sal = j ? (S.u.a.s + S.u.p.s) : (activeUser === 'a' ? S.u.a.s : S.u.p.s);
-  return {j, sal, ex, activeUser};
-}
-function nm(u){return u==='p'?S.u.p.n:S.u.a.n}
+// ---- Estado ----
+const nowKey=mKey(new Date());
+const seed=()=>{const t=[],d=(k,day)=>`${k}-${String(day).padStart(2,'0')}`;
+ [[0,1],[1,.92],[2,1.08],[3,.85],[4,1.15],[5,.95]].forEach(([b,f])=>{const k=addM(nowKey,-b);
+  t.push({id:'s'+b+'a',description:'Supermercado',amount:Math.round(350000*f),owner:'maikel',category:'needs',date:d(k,3)},
+   {id:'s'+b+'b',description:'Alquiler y servicios',amount:Math.round(1900000*f),owner:'jazmin',category:'needs',date:d(k,5)},
+   {id:'s'+b+'c',description:'Salida restaurante',amount:Math.round(180000*f),owner:'jazmin',category:'wants',date:d(k,12)},
+   {id:'s'+b+'d',description:'Café y empanadas',amount:Math.round(15000*f*3),owner:'maikel',category:'ant',date:d(k,8)},
+   {id:'s'+b+'e',description:'Ahorro mensual',amount:Math.round(500000*(2-f)),owner:'maikel',category:'savings',date:d(k,28)})});
+ return t};
+window.appState={activeProfile:'maikel',viewMode:'individual',incomeMaikel:4500000,incomeJazmin:4200000,incomes:{},transactions:seed(),
+ creditCards:[{id:'c1',name:'Visa Itaú',owner:'maikel',limit:8000000,used:2100000},{id:'c2',name:'Mastercard Sudameris',owner:'jazmin',limit:6000000,used:1200000}]};
+const ui={month:nowKey,tab:'home',range:6,filter:'all'};
+const S=()=>window.appState, save=()=>window.saveAppState&&window.saveAppState();
 
-function grow(){document.querySelectorAll('[data-w]').forEach(e=>e.style.width=e.dataset.w+'%')}
-function tween(el,to){const from=+el.dataset.v||0;el.dataset.v=to;
-  if(from===to||matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent=gs(to);return}
-  const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/800),e=1-Math.pow(1-p,3);el.textContent=gs(from+(to-from)*e);if(p<1)requestAnimationFrame(f)})(t0)}
-function render(){render0();setTimeout(grow,40)}
-function render0(){
-  const{j,sal,ex,activeUser}=ctx();
-  const b={},sp={needs:0,wants:0,savings:0,credit:0};
-  CATS.forEach(c=>b[c.k]=sal*c.p/100);
-  ex.forEach(x=>{if(sp[x.c]!==undefined)sp[x.c]+=x.m});
+// ---- Datos ----
+const inMode=o=>S().viewMode==='couple'||o===S().activeProfile;
+function incomeOf(k){const i=S().incomes[k]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
+ return S().viewMode==='couple'?(+i.maikel||0)+(+i.jazmin||0):(+i[S().activeProfile]||0)}
+function stats(k){const s={inc:incomeOf(k),needs:0,wants:0,ant:0,sav:0};
+ S().transactions.forEach(t=>{if(String(t.date).slice(0,7)===k&&inMode(t.owner))s[t.category]+=+t.amount||0});
+ s.exp=s.needs+s.wants+s.ant;s.bal=s.inc-s.exp-s.sav;return s}
 
-  $('uA').className = activeUser==='a'?'on':'';
-  $('uP').className = activeUser==='p'?'on':'';
-  $('uA').textContent = '👤 ' + S.u.a.n;
-  $('uP').textContent = '👤 ' + (S.u.p.n || 'Jazmín');
+// ---- UI base ----
+function toggleTheme(){const r=document.documentElement,d=r.dataset.theme==='dark';r.dataset.theme=d?'light':'dark';$('theme-i').className='fa-solid '+(d?'fa-moon':'fa-sun');if(ui.tab==='cmp')renderCompare()}
+const openModal=id=>{if(id==='m-tx')$('tx-date').value=(ui.month===nowKey?new Date().toLocaleDateString('sv'):ui.month+'-01');$(id).classList.add('on')};
+const closeModal=id=>$(id).classList.remove('on');
+function openIncome(){const i=S().incomes[ui.month]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
+ $('income-maikel').value=i.maikel;$('income-jazmin').value=i.jazmin;$('inc-month').textContent=mLabel(ui.month,1);openModal('m-income')}
+function selectProfile(p){S().activeProfile=p;S().viewMode='individual';$('login').classList.add('off');renderAll()}
+const showProfileSelection=()=>$('login').classList.remove('off');
+const setViewMode=m=>{S().viewMode=m;renderAll()};
+const shiftMonth=n=>{ui.month=addM(ui.month,n);renderAll()};
+function setTab(t){ui.tab=t;document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='s-'+t));
+ document.querySelectorAll('nav .t').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));scrollTo(0,0);renderAll()}
 
-  $('mI').className=j?'':'on';$('mJ').className=j?'on':'';
-  const left=b.needs+b.wants-sp.needs-sp.wants;
-  $('hl').textContent=left<0?'Te pasaste por':'Te queda para gastar';
-  tween($('hb'),Math.abs(left));$('hb').className='big'+(left<0?' neg':'');
-  $('hs').textContent='Sueldo '+gs(sal)+(j?' ('+S.u.a.n+' y '+S.u.p.n+')':' ('+nm(activeUser)+')');
-  $('hbar').innerHTML=CATS.map(c=>{const p=b[c.k]>0?Math.min(100,sp[c.k]/b[c.k]*100):0;
-    return `<i style="flex:${c.p};--c:var(--${c.k})"><b data-w="${p}" style="width:0"></b></i>`}).join('');
-  
-  $('cats').innerHTML=CATS.map(c=>{const rem=b[c.k]-sp[c.k],p=b[c.k]>0?Math.min(100,sp[c.k]/b[c.k]*100):0,sv=c.k==='savings';
-    const right=sv?(rem<=0?'Meta cumplida':'Faltan '+gs(rem)):(rem<0?'Te pasaste '+gs(-rem):'Quedan '+gs(rem));
-    return `<div class="row" style="--c:var(--${c.k})"><div class="rh"><b>${c.n}</b><span class="num">${c.p}%</span></div>
-    <p class="hint">${c.h}. Presupuesto ${gs(b[c.k])}</p>
-    <div class="track ${!sv&&p>=100?'over':''}"><i data-w="${p}" style="width:0"></i></div>
-    <div class="rn"><span>${sv?'Ahorrado':'Gastado'} ${gs(sp[c.k])}</span><span class="${!sv&&rem<0?'neg':''}">${right}</span></div></div>`}).join('');
+// ---- Render ----
+function renderAll(){renderHead();
+ if(ui.tab==='home')renderHome();else if(ui.tab==='tx')renderTx();else if(ui.tab==='cmp')renderCompare();else renderCards()}
+function renderHead(){const p=S().activeProfile;$('v-name').textContent=NAME[p];
+ $('v-ico').className='fa-solid '+(p==='maikel'?'fa-user-ninja':'fa-user-astronaut');$('v-ico').style.color=p==='maikel'?'var(--mk)':'var(--jz)';
+ $('v-ind').classList.toggle('on',S().viewMode==='individual');$('v-cou').classList.toggle('on',S().viewMode==='couple');
+ $('mon-label').textContent=mLabel(ui.month,1)}
+function renderHome(){const s=stats(ui.month);
+ $('h-bal').textContent=formatGs(s.bal);$('h-bal').classList.toggle('neg',s.bal<0);
+ $('h-inc').textContent=short(s.inc);$('h-exp').textContent=short(s.exp);$('h-sav').textContent=short(s.sav);
+ const R=[['Necesidades 50%',s.needs,s.inc*.5,'var(--mk)'],['Deseos 30%',s.wants+s.ant,s.inc*.3,'#8b5cf6'],['Ahorro 20%',s.sav,s.inc*.2,'var(--warn)']];
+ $('rules').innerHTML=R.map(([n,v,l,c],i)=>{const p=l?v/l*100:0,over=i<2&&p>100;
+  return `<div class="rule"><div class="r"><span>${n}</span><span class="num">${formatGs(v)} / ${short(l)}</span></div><div class="track"><i style="width:${Math.min(100,p)}%;background:${over?'var(--bad)':c}"></i></div></div>`}).join('');
+ const a=S().transactions.filter(t=>t.category==='ant'&&String(t.date).slice(0,7)===ui.month&&inMode(t.owner));
+ const tot=a.reduce((x,t)=>x+(+t.amount||0),0);$('ant-badge').textContent=formatGs(tot*12)+'/año';
+ $('ant-list').innerHTML=a.length?a.map(t=>`<div class="row"><div class="ico c-ant"><i class="fa-solid fa-bug"></i></div><div class="m"><b>${esc(t.description)}</b><small>${NAME[t.owner]}</small></div><div class="a num">${formatGs(t.amount)}</div></div>`).join(''):'<div class="empty">Sin gastos hormiga este mes.</div>'}
+function renderTx(){
+ $('tx-chips').innerHTML=[['all','Todos']].concat(Object.entries(CAT).map(([k,v])=>[k,v[0]])).map(([k,n])=>`<button class="chip ${ui.filter===k?'on':''}" onclick="ui.filter='${k}';renderTx()">${n}</button>`).join('');
+ const l=S().transactions.filter(t=>String(t.date).slice(0,7)===ui.month&&inMode(t.owner)&&(ui.filter==='all'||t.category===ui.filter)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ $('tx-list').innerHTML=l.length?l.map(t=>{const c=CAT[t.category];
+  return `<div class="row"><div class="ico ${c[2]}"><i class="fa-solid ${c[1]}"></i></div><div class="m"><b>${esc(t.description)}</b><small>${String(t.date).slice(8,10)} ${mLabel(String(t.date).slice(0,7))} · ${c[0]} · ${NAME[t.owner]}</small></div><div class="a num">${formatGs(t.amount)}</div><button class="x" onclick="deleteTransaction('${esc(t.id)}')" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button></div>`}).join(''):'<div class="empty">No hay movimientos en este mes. Toca + para registrar uno.</div>'}
+let chart;
+function renderCompare(){
+ $('rng-chips').innerHTML=[3,6,12].map(n=>`<button class="chip ${ui.range===n?'on':''}" onclick="ui.range=${n};renderCompare()">${n} meses</button>`).join('');
+ const ks=Array.from({length:ui.range},(_,i)=>addM(ui.month,i-ui.range+1)),D=ks.map(stats);
+ const avg=f=>D.reduce((a,s)=>a+f(s),0)/D.length,best=D.reduce((b,s,i)=>s.bal>D[b].bal?i:b,0);
+ $('cmp-kpis').innerHTML=[['Balance promedio',formatGs(avg(s=>s.bal)),avg(s=>s.bal)<0?'neg':'pos'],['Gasto promedio',formatGs(avg(s=>s.exp)),''],['Ahorro promedio',formatGs(avg(s=>s.sav)),''],['Mejor mes',mLabel(ks[best],1),'']].map(([a,b,c])=>`<div class="kpi"><span>${a}</span><b class="num ${c}" style="text-transform:capitalize">${b}</b></div>`).join('');
+ const st=getComputedStyle(document.documentElement),col=n=>st.getPropertyValue(n).trim();
+ if(chart)chart.destroy();
+ chart=new Chart($('chart'),{type:'bar',data:{labels:ks.map(k=>mLabel(k)),datasets:[
+  {label:'Ingresos',data:D.map(s=>s.inc),backgroundColor:col('--ok'),borderRadius:5},
+  {label:'Gastos',data:D.map(s=>s.exp),backgroundColor:col('--bad'),borderRadius:5},
+  {label:'Balance',data:D.map(s=>s.bal),type:'line',borderColor:col('--ink'),backgroundColor:col('--ink'),tension:.3,pointRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:col('--mut'),boxWidth:10,font:{family:'Figtree'}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+formatGs(c.raw)}}},
+   scales:{x:{ticks:{color:col('--mut')},grid:{display:false}},y:{ticks:{color:col('--mut'),callback:v=>short(v)},grid:{color:col('--line')}}}}});
+ const dl=(v,p,inv)=>{if(p==null||!p)return '';const d=v-p;if(!d)return '';const good=inv?d<0:d>0;return `<span class="${good?'pos':'neg'}" style="font-size:11px"> ${d>0?'▲':'▼'}</span>`};
+ $('cmp-table').innerHTML=`<tr><th>Mes</th><th>Ingresos</th><th>Gastos</th><th>Ahorro</th><th>Balance</th></tr>`+D.map((s,i)=>{const p=D[i-1];
+  return `<tr><td>${mLabel(ks[i])}</td><td class="num">${short(s.inc)}</td><td class="num">${short(s.exp)}${dl(s.exp,p&&p.exp,1)}</td><td class="num">${short(s.sav)}</td><td class="num ${s.bal<0?'neg':'pos'}"><b>${short(s.bal)}</b>${dl(s.bal,p&&p.bal)}</td></tr>`}).join('')}
+function renderCards(){const c=S().creditCards.filter(x=>inMode(x.owner));
+ $('cards-list').innerHTML=c.length?c.map(x=>{const p=Math.min(100,Math.round((+x.used||0)/(+x.limit||1)*100));
+  return `<div class="cc ${x.owner}"><div class="h"><b>${esc(x.name)}</b><span>${NAME[x.owner]}</span></div><div class="v num">${formatGs(x.used)}</div><small>de ${formatGs(x.limit)} · ${p}% usado</small><div class="track"><i class="${p>80?'hi':''}" style="width:${p}%"></i></div></div>`}).join(''):'<div class="card empty">No hay tarjetas en esta vista.</div>'}
 
-  // Tarjeta de crédito render
-  const ccLimit = S.ccLimit || 5000000;
-  const ccSpent = sp.credit;
-  const ccAvail = ccLimit - ccSpent;
-  const ccPct = Math.min(100, (ccSpent/ccLimit)*100);
-  $('cc-bar').style.width = ccPct+'%';
-  $('cc-bar').parentElement.className = 'track'+(ccSpent>ccLimit?' over':'');
-  $('cc-spent').textContent = 'Consumido '+gs(ccSpent);
-  $('cc-avail').textContent = 'Disponible '+gs(ccAvail);
-  $('cc-hint').textContent = 'Límite total: '+gs(ccLimit);
+// ---- Acciones ----
+function handleIncomeSubmit(e){e.preventDefault();S().incomes[ui.month]={maikel:+$('income-maikel').value||0,jazmin:+$('income-jazmin').value||0};save();closeModal('m-income');renderAll()}
+function handleTransactionSubmit(e){e.preventDefault();const d=$('tx-date').value;
+ S().transactions.unshift({id:Date.now().toString(),description:$('tx-description').value.trim(),amount:+$('tx-amount').value||0,owner:$('tx-owner').value,category:$('tx-category').value,date:d});
+ save();e.target.reset();closeModal('m-tx');ui.month=d.slice(0,7);renderAll()}
+function handleCardSubmit(e){e.preventDefault();S().creditCards.push({id:'c_'+Date.now(),name:$('card-name').value.trim(),owner:$('card-owner').value,limit:+$('card-limit').value||0,used:+$('card-used').value||0});save();e.target.reset();closeModal('m-card');renderAll()}
+function deleteTransaction(id){if(!confirm('¿Eliminar este movimiento?'))return;S().transactions=S().transactions.filter(t=>t.id!==id);save();renderAll()}
+const reconnectFirebase=()=>{window.initFirebase&&window.initFirebase();closeModal('m-menu')};
+addEventListener('DOMContentLoaded',renderAll);
+</script>
 
-  const ant=ex.filter(x=>x.h),yr=ant.reduce((s,x)=>s+x.m,0)*12;
-  $('an').textContent=gs(yr)+' al año';
-  $('am').textContent=yr===0?'No registraste gastos hormiga.':yr<1500000?'Impacto moderado: es dinero que podría ir a tu ahorro.':'Impacto alto: este monto sirve para un fondo de emergencia o unas vacaciones.';
-  $('al').innerHTML=ant.length?ant.map(x=>`<div class="item"><p>🐜 ${esc(x.d)}</p><p class="a neg">${gs(x.m)} <span class="m">(${gs(x.m*12)}/año)</span></p></div>`).join(''):'<p class="empty">Todavía no marcaste ningún gasto como hormiga.</p>';
-  $('fA').className='chip'+(F==='all'?' on':'');$('fH').className='chip'+(F==='ant'?' on':'');
-  const l=ex.filter(x=>F==='all'||x.h).sort((a,c)=>c.t-a.t);
-  $('tl').innerHTML=l.length?l.map(x=>`<div class="item"><div><p>${esc(x.d)}${x.h?' 🐜':''}</p><p class="m">${SH[x.c]} · ${esc(nm(x.u))}</p></div>
-    <div style="display:flex;align-items:center"><span class="a">${gs(-x.m)}</span><button class="x" aria-label="Borrar ${esc(x.d)}" onclick="del('${x.id}')">×</button></div></div>`).join(''):'<p class="empty">No hay movimientos. Tocá “Registrar gasto” para agregar el primero.</p>';
-}
-
-window.setActiveUser = function(u){S.activeUser = u;save();render()}
-window.setMode = function(m){if(m==='par'&&!S.u.p.on){openS('cfg');return}S.mode=m;save();render()}
-window.setF = function(f){F=f;render()}
-window.del = function(id){S.e=S.e.filter(x=>x.id!==id);save();render()}
-window.resetAll = function(){if(confirm('¿Borrar todos los gastos registrados?')){S.e=[];save();render()}}
-window.openS = function(id){
-  if(id==='exp'){$('ed').value='';$('ea').value='';$('eh').checked=false;
-    $('eu').innerHTML='<option value="a">'+esc(S.u.a.n)+'</option>'+(S.u.p.on?'<option value="p">'+esc(S.u.p.n)+'</option>':'');
-    $('eu').value = S.activeUser;
-    $('eun').className=''}
-  if(id==='cfg'){$('n1').value=S.u.a.n;$('s1').value=grp(S.u.a.s);$('pc').checked=S.u.p.on;$('n2').value=S.u.p.n||'';$('s2').value=S.u.p.s?grp(S.u.p.s):'';tp()}
-  if(id==='cc-cfg'){$('cc-lim').value=grp(S.ccLimit||5000000);}
-  if(id==='sync-cfg'){$('room-code').value=roomCode;}
-  $(id).classList.add('open')}
-window.closeS = function(id){$(id).classList.remove('open')}
-window.tp = function(){$('pf').className=$('pc').checked?'':'hide'}
-window.addExp = function(e){e.preventDefault();const m=num($('ea').value),d=$('ed').value.trim();if(!d||m<=0)return;
-  S.e.push({id:String(Date.now()),d,m,c:document.querySelector('input[name=cat]:checked').value,u:$('eu').value,h:$('eh').checked?1:0,t:Date.now()});
-  save();closeS('exp');render()}
-window.saveCfg = function(e){e.preventDefault();
-  S.u.a.n=$('n1').value.trim()||'Maikel';S.u.a.s=num($('s1').value);
-  S.u.p.on=$('pc').checked;
-  if(S.u.p.on){S.u.p.n=$('n2').value.trim()||'Jazmín';S.u.p.s=num($('s2').value)}else S.mode='ind';
-  save();closeS('cfg');render()}
-window.saveCCfg = function(e){e.preventDefault();
-  S.ccLimit = num($('cc-lim').value);
-  save();closeS('cc-cfg');render()}
-window.saveSyncCfg = function(e){
-  e.preventDefault();
-  const rc = $('room-code').value.trim();
-  if(rc){
-    roomCode = rc;
-    localStorage.setItem(K+'_ROOM', roomCode);
-    closeS('sync-cfg');
-    initRealtimeSync();
-  }
-}
-
-render();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import{getAuth,signInAnonymously,signInWithCustomToken,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import{getFirestore,doc,onSnapshot,setDoc}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+const appId=typeof __app_id!=='undefined'?__app_id:'maikel-jazmin-finanzas';
+const firebaseConfig=typeof __firebase_config!=='undefined'?JSON.parse(__firebase_config):{apiKey:"demo-key",authDomain:"demo.firebaseapp.com",projectId:"demo-project",storageBucket:"demo.appspot.com",messagingSenderId:"000000000",appId:"1:000000000:web:000000000"};
+let app,db,auth,ready=false,listening=false;
+const ref=()=>doc(db,'artifacts',appId,'public','data','budget_shared');
+function status(ok){const d=document.getElementById('fb-dot');d.className='dot'+(ok?' on':'');
+ document.getElementById('login-status').textContent=ok?'Sincronizado con Firebase':'Modo local (sin conexión)';
+ document.getElementById('fb-text').textContent=ok?'Sincronización en tiempo real activa.':'Modo local. Los cambios no se comparten hasta conectar.'}
+async function initFirebase(){try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+ if(typeof __initial_auth_token!=='undefined'&&__initial_auth_token)await signInWithCustomToken(auth,__initial_auth_token);else await signInAnonymously(auth);
+ onAuthStateChanged(auth,u=>{if(u){ready=true;status(true);listen()}})}catch(e){console.warn('Modo local:',e);status(false)}}
+function listen(){if(listening)return;listening=true;
+ onSnapshot(ref(),snap=>{if(snap.exists()){const d=snap.data(),s=window.appState;
+  s.incomeMaikel=d.incomeMaikel??s.incomeMaikel;s.incomeJazmin=d.incomeJazmin??s.incomeJazmin;s.incomes=d.incomes??s.incomes;
+  s.transactions=d.transactions??s.transactions;s.creditCards=d.creditCards??s.creditCards;renderAll()}else save()},e=>console.error(e))}
+async function save(){if(!ready||!db)return;const s=window.appState;
+ try{await setDoc(ref(),{incomeMaikel:s.incomeMaikel,incomeJazmin:s.incomeJazmin,incomes:s.incomes,transactions:s.transactions,creditCards:s.creditCards,lastUpdated:new Date().toISOString()},{merge:true})}catch(e){console.error(e)}}
+window.saveAppState=save;window.initFirebase=initFirebase;initFirebase();
 </script>
 </body>
 </html>
