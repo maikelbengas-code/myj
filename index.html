@@ -28,6 +28,8 @@ button{cursor:pointer;border:0;background:none}
 .top{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:8px}
 .brand{font-weight:800;font-size:17px;flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.logohead{height:50px;width:auto;display:block}
+:root[data-theme=dark] .logohead,.glow{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 6px rgba(255,255,255,.4))}
 .logoimg{width:32px;height:32px;border-radius:9px;flex:none;object-fit:cover}
 .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--mk),var(--jz));color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
 .ib{width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--mut);position:relative}
@@ -96,18 +98,18 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
 </head>
 <body>
 <div id="login">
-  <img src="logo.png" alt="Maikel y Jazmín" width="170" style="height:auto;margin-bottom:14px">
+  <img class="glow" src="logo.png" alt="Maikel y Jazmín" width="170" style="height:auto;margin-bottom:14px">
   <p>¿Quién entra hoy?</p>
   <div class="pf">
     <button class="mk" onclick="selectProfile('maikel')"><i class="fa-solid fa-user-ninja"></i>Maikel</button>
     <button class="jz" onclick="selectProfile('jazmin')"><i class="fa-solid fa-user-astronaut"></i>Jazmín</button>
   </div>
   <small id="login-status" style="margin-top:26px;color:#8f98ad">Modo local</small>
-  <small style="margin-top:6px;color:#8f98ad;opacity:.8">Versión <span class="app-ver">3.0.0</span></small>
+  <small style="margin-top:6px;color:#8f98ad;opacity:.8">Versión <span class="app-ver">3.1.0</span></small>
 </div>
 
 <header class="top"><div class="wrap">
-  <div class="brand"><img class="logoimg" src="icon-192.png" alt="">Finanzas MyJ</div>
+  <div class="brand"><img class="logohead" src="logo.png" alt="Maikel y Jazmín"></div>
   <button class="ib" onclick="toggleTheme()" aria-label="Cambiar tema"><i id="theme-i" class="fa-solid fa-moon"></i></button>
   <button class="ib" onclick="openModal('m-menu')" aria-label="Menú"><i class="fa-solid fa-ellipsis"></i><span id="fb-dot" class="dot"></span></button>
 </div>
@@ -134,6 +136,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
   <div class="card">
     <h3>Regla 50 / 30 / 20 <span style="display:flex;gap:6px"><button class="tag t-maikel" onclick="openIncome()"><i class="fa-solid fa-pen"></i> Ingresos</button><button class="tag c-inc" onclick="openExtra()"><i class="fa-solid fa-plus"></i> Extra</button></span></h3>
     <div id="rules"></div>
+  </div>
+  <div class="card">
+    <h3>Comida y Bolt</h3>
+    <div id="tags-box"></div>
   </div>
   <div class="card">
     <h3>Gastos hormiga <span class="tag c-ant" id="ant-badge">Gs. 0/año</span></h3>
@@ -176,8 +182,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
   <label>Concepto</label><input class="in" id="tx-description" required placeholder="Ej. Supermercado">
   <div class="g2"><div><label>Monto (Gs.)</label><input class="in" id="tx-amount" type="number" inputmode="numeric" required placeholder="150000"></div>
   <div><label>Fecha</label><input class="in" id="tx-date" type="date" required></div></div>
-  <div class="g2"><div><label>Responsable</label><select class="in" id="tx-owner"><option value="maikel">Maikel</option><option value="jazmin">Jazmín</option></select></div>
+  <div class="g2"><div><label>Responsable</label><select class="in" id="tx-owner" onchange="fillCardOpts()"><option value="maikel">Maikel</option><option value="jazmin">Jazmín</option></select></div>
   <div><label>Categoría</label><select class="in" id="tx-category"><option value="needs">Necesidad (50%)</option><option value="wants">Deseo (30%)</option><option value="savings">Ahorro (20%)</option><option value="ant">Gasto hormiga</option><option value="income">Ingreso extra (+)</option></select></div></div>
+  <div class="g2"><div><label>Rubro</label><select class="in" id="tx-tag"><option value="">Ninguno</option><option value="comida">Comida</option><option value="bolt">Bolt</option></select></div>
+  <div><label>Pagado con</label><select class="in" id="tx-card"></select></div></div>
   <button class="btn">Guardar movimiento</button>
 </form></div>
 
@@ -197,17 +205,28 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
   <button class="btn" id="card-save">Guardar tarjeta</button>
 </form></div>
 
+<div class="ov" id="m-pay" onclick="if(event.target===this)closeModal('m-pay')"><form class="sheet" onsubmit="handlePay(event)">
+  <h2><span id="pay-title">Pagar tarjeta</span> <button type="button" class="x" onclick="closeModal('m-pay')"><i class="fa-solid fa-xmark"></i></button></h2>
+  <input type="hidden" id="pay-id"><p id="pay-info" style="font-weight:700;margin-bottom:4px"></p>
+  <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">El pago baja la deuda de la tarjeta. No cambia tu balance, porque cada compra ya se descontó el día que la registraste.</p>
+  <label>Monto a pagar (Gs.)</label><input class="in" id="pay-amount" type="number" inputmode="numeric" required>
+  <button class="btn">Registrar pago</button>
+</form></div>
+
 <div class="ov" id="m-menu" onclick="if(event.target===this)closeModal('m-menu')"><div class="sheet">
   <h2>Ajustes <button type="button" class="x" onclick="closeModal('m-menu')"><i class="fa-solid fa-xmark"></i></button></h2>
   <div class="card" style="background:var(--soft);border:0"><b style="font-size:13px"><i class="fa-solid fa-cloud"></i> Sincronización</b><p id="fb-text" style="font-size:13px;color:var(--mut);margin-top:4px">Modo local.</p></div>
+  <button class="btn sec" style="margin-bottom:10px" onclick="downloadBackup()"><i class="fa-solid fa-download"></i> Descargar respaldo</button>
+  <button class="btn sec" style="margin-bottom:10px" onclick="$('backup-file').click()"><i class="fa-solid fa-upload"></i> Cargar respaldo</button>
+  <input type="file" id="backup-file" accept=".json,application/json" hidden onchange="loadBackup(event)">
   <button class="btn sec" style="margin-bottom:10px" onclick="reconnectFirebase()"><i class="fa-solid fa-rotate"></i> Reintentar sincronización</button>
   <button class="btn sec" onclick="closeModal('m-menu');showProfileSelection()"><i class="fa-solid fa-right-from-bracket"></i> Cambiar de usuario</button>
   <button class="btn sec" style="margin-top:10px;color:var(--bad)" onclick="resetAll()"><i class="fa-solid fa-trash-can"></i> Borrar todos los datos</button>
-  <p style="text-align:center;font-size:12px;color:var(--mut);margin-top:14px">Finanzas M&J · v<span class="app-ver">3.0.0</span></p>
+  <p style="text-align:center;font-size:12px;color:var(--mut);margin-top:14px">Finanzas M&J · v<span class="app-ver">3.1.0</span></p>
 </div></div>
 
 <script>
-const APP_VERSION='3.0.0';
+const APP_VERSION='3.1.0';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatGs=n=>'Gs. '+Math.round(n||0).toLocaleString('es-PY');
@@ -217,6 +236,8 @@ const mLabel=(k,long)=>{const[y,m]=k.split('-');return new Date(+y,+m-1,1).toLoc
 const addM=(k,n)=>{const[y,m]=k.split('-');return mKey(new Date(+y,+m-1+n,1))};
 const CAT={needs:['Necesidad','fa-house','c-needs'],wants:['Deseo','fa-gamepad','c-wants'],savings:['Ahorro','fa-piggy-bank','c-savings'],ant:['Hormiga','fa-bug','c-ant'],income:['Ingreso extra','fa-arrow-trend-up','c-inc']};
 const NAME={maikel:'Maikel',jazmin:'Jazmín'};
+const TAG={comida:'Comida',bolt:'Bolt'};
+const cardName=id=>(S().creditCards.find(c=>c.id===id)||{}).name||'Tarjeta';
 
 // ---- Estado ----
 const nowKey=mKey(new Date());
@@ -235,7 +256,8 @@ function stats(k){const s={inc:incomeOf(k),needs:0,wants:0,ant:0,sav:0,extra:0};
 
 // ---- UI base ----
 function toggleTheme(){const r=document.documentElement,d=r.dataset.theme==='dark';r.dataset.theme=d?'light':'dark';$('theme-i').className='fa-solid '+(d?'fa-moon':'fa-sun');if(ui.tab==='cmp')renderCompare()}
-const openModal=id=>{if(id==='m-tx')$('tx-date').value=(ui.month===nowKey?new Date().toLocaleDateString('sv'):ui.month+'-01');$(id).classList.add('on')};
+function fillCardOpts(){const o=$('tx-owner').value;$('tx-card').innerHTML='<option value="">Efectivo / débito</option>'+S().creditCards.filter(c=>c.owner===o).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}
+const openModal=id=>{if(id==='m-tx'){$('m-tx').querySelector('form').reset();$('tx-date').value=(ui.month===nowKey?new Date().toLocaleDateString('sv'):ui.month+'-01');$('tx-owner').value=S().activeProfile;$('tx-description').placeholder='Ej. Supermercado';fillCardOpts()}$(id).classList.add('on')};
 const closeModal=id=>$(id).classList.remove('on');
 function openExtra(){openModal('m-tx');$('tx-category').value='income';$('tx-owner').value=S().activeProfile;$('tx-description').placeholder='Ej. Bono, venta, changa'}
 function openIncome(){const i=S().incomes[ui.month]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
@@ -260,14 +282,16 @@ function renderHome(){const s=stats(ui.month);
  const R=[['Necesidades 50%',s.needs,s.inc*.5,'var(--mk)'],['Deseos 30%',s.wants+s.ant,s.inc*.3,'#8b5cf6'],['Ahorro 20%',s.sav,s.inc*.2,'var(--warn)']];
  $('rules').innerHTML=R.map(([n,v,l,c],i)=>{const p=l?v/l*100:0,over=i<2&&p>100;
   return `<div class="rule"><div class="r"><span>${n}</span><span class="num">${formatGs(v)} / ${short(l)}</span></div><div class="track"><i style="width:${Math.min(100,p)}%;background:${over?'var(--bad)':c}"></i></div></div>`}).join('');
+ $('tags-box').innerHTML=['comida','bolt'].map(k=>{const v=S().transactions.filter(t=>t.tag===k&&String(t.date).slice(0,7)===ui.month&&inMode(t.owner)).reduce((x,t)=>x+(+t.amount||0),0);
+  return `<div class="row"><div class="ico ${k==='comida'?'c-needs':'c-wants'}"><i class="fa-solid ${k==='comida'?'fa-utensils':'fa-taxi'}"></i></div><div class="m"><b>${TAG[k]}</b><small>${s.exp?Math.round(v/s.exp*100):0}% de los gastos del mes</small></div><div class="a num">${formatGs(v)}</div></div>`}).join('');
  const a=S().transactions.filter(t=>t.category==='ant'&&String(t.date).slice(0,7)===ui.month&&inMode(t.owner));
  const tot=a.reduce((x,t)=>x+(+t.amount||0),0);$('ant-badge').textContent=formatGs(tot*12)+'/año';
  $('ant-list').innerHTML=a.length?a.map(t=>`<div class="row"><div class="ico c-ant"><i class="fa-solid fa-bug"></i></div><div class="m"><b>${esc(t.description)}</b><small>${NAME[t.owner]}</small></div><div class="a num">${formatGs(t.amount)}</div></div>`).join(''):'<div class="empty">Sin gastos hormiga este mes.</div>'}
 function renderTx(){
- $('tx-chips').innerHTML=[['all','Todos']].concat(Object.entries(CAT).map(([k,v])=>[k,v[0]])).map(([k,n])=>`<button class="chip ${ui.filter===k?'on':''}" onclick="ui.filter='${k}';renderTx()">${n}</button>`).join('');
- const l=S().transactions.filter(t=>String(t.date).slice(0,7)===ui.month&&inMode(t.owner)&&(ui.filter==='all'||t.category===ui.filter)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ $('tx-chips').innerHTML=[['all','Todos']].concat(Object.entries(CAT).map(([k,v])=>[k,v[0]])).concat([['tag:comida','Comida'],['tag:bolt','Bolt']]).map(([k,n])=>`<button class="chip ${ui.filter===k?'on':''}" onclick="ui.filter='${k}';renderTx()">${n}</button>`).join('');
+ const l=S().transactions.filter(t=>String(t.date).slice(0,7)===ui.month&&inMode(t.owner)&&(ui.filter==='all'||(ui.filter.startsWith('tag:')?t.tag===ui.filter.slice(4):t.category===ui.filter))).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  $('tx-list').innerHTML=l.length?l.map(t=>{const c=CAT[t.category];
-  return `<div class="row"><div class="ico ${c[2]}"><i class="fa-solid ${c[1]}"></i></div><div class="m"><b>${esc(t.description)}</b><small>${String(t.date).slice(8,10)} ${mLabel(String(t.date).slice(0,7))} · ${c[0]} · ${NAME[t.owner]}</small></div><div class="a num ${t.category==='income'?'pos':''}">${t.category==='income'?'+ ':''}${formatGs(t.amount)}</div><button class="x" onclick="deleteTransaction('${esc(t.id)}')" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button></div>`}).join(''):'<div class="empty">No hay movimientos en este mes. Toca + para registrar uno.</div>'}
+  return `<div class="row"><div class="ico ${c[2]}"><i class="fa-solid ${c[1]}"></i></div><div class="m"><b>${esc(t.description)}</b><small>${String(t.date).slice(8,10)} ${mLabel(String(t.date).slice(0,7))} · ${c[0]} · ${NAME[t.owner]}${t.tag?' · '+TAG[t.tag]:''}${t.card?' · '+esc(cardName(t.card)):''}</small></div><div class="a num ${t.category==='income'?'pos':''}">${t.category==='income'?'+ ':''}${formatGs(t.amount)}</div><button class="x" onclick="deleteTransaction('${esc(t.id)}')" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button></div>`}).join(''):'<div class="empty">No hay movimientos en este mes. Toca + para registrar uno.</div>'}
 let chart;
 function renderCompare(){
  $('rng-chips').innerHTML=[3,6,12].map(n=>`<button class="chip ${ui.range===n?'on':''}" onclick="ui.range=${n};renderCompare()">${n} meses</button>`).join('');
@@ -286,14 +310,16 @@ function renderCompare(){
  $('cmp-table').innerHTML=`<tr><th>Mes</th><th>Ingresos</th><th>Gastos</th><th>Ahorro</th><th>Balance</th></tr>`+D.map((s,i)=>{const p=D[i-1];
   return `<tr><td>${mLabel(ks[i])}</td><td class="num">${short(s.inc)}</td><td class="num">${short(s.exp)}${dl(s.exp,p&&p.exp,1)}</td><td class="num">${short(s.sav)}</td><td class="num ${s.bal<0?'neg':'pos'}"><b>${short(s.bal)}</b>${dl(s.bal,p&&p.bal)}</td></tr>`}).join('')}
 function renderCards(){const c=S().creditCards.filter(x=>inMode(x.owner));
- $('cards-list').innerHTML=c.length?c.map(x=>{const p=Math.min(100,Math.round((+x.used||0)/(+x.limit||1)*100));
-  return `<div class="cc ${x.owner}"><div class="h"><div><b>${esc(x.name)}</b><br><small>${NAME[x.owner]}</small></div><div class="act"><button onclick="openCard('${esc(x.id)}')" aria-label="Editar tarjeta"><i class="fa-solid fa-pen"></i></button><button onclick="deleteCard('${esc(x.id)}')" aria-label="Eliminar tarjeta"><i class="fa-solid fa-trash"></i></button></div></div><div class="v num">${formatGs(x.used)}</div><small>de ${formatGs(x.limit)} · ${p}% usado</small><div class="track"><i class="${p>80?'hi':''}" style="width:${p}%"></i></div></div>`}).join(''):'<div class="card empty">No hay tarjetas en esta vista.</div>'}
+ $('cards-list').innerHTML=c.length?c.map(x=>{const lim=+x.limit||1,u=+x.used||0,p=Math.min(100,Math.round(u/lim*100)),lp=(x.pagos||[]).slice(-1)[0],id=esc(x.id);
+  return `<div class="cc ${x.owner}"><div class="h"><div><b>${esc(x.name)}</b><br><small>${NAME[x.owner]}</small></div><div class="act"><button onclick="openPay('${id}')" aria-label="Pagar tarjeta" style="width:auto;padding:0 12px;font-weight:700"><i class="fa-solid fa-hand-holding-dollar"></i>&nbsp;Pagar</button><button onclick="openCard('${id}')" aria-label="Editar tarjeta"><i class="fa-solid fa-pen"></i></button><button onclick="deleteCard('${id}')" aria-label="Eliminar tarjeta"><i class="fa-solid fa-trash"></i></button></div></div><div class="v num">${formatGs(u)}</div><small>de ${formatGs(x.limit)} · ${p}% usado · Disponible ${formatGs(Math.max(0,lim-u))}</small><div class="track"><i class="${p>80?'hi':''}" style="width:${p}%"></i></div>${lp?`<small style="display:block;margin-top:8px;opacity:.85">Último pago: ${formatGs(lp.amount)} el ${lp.date.slice(8,10)}/${lp.date.slice(5,7)}</small>`:''}</div>`}).join(''):'<div class="card empty">No hay tarjetas en esta vista.</div>'}
 
 // ---- Acciones ----
 function handleIncomeSubmit(e){e.preventDefault();S().incomes[ui.month]={maikel:+$('income-maikel').value||0,jazmin:+$('income-jazmin').value||0};save();closeModal('m-income');renderAll()}
-function handleTransactionSubmit(e){e.preventDefault();const d=$('tx-date').value;
- S().transactions.unshift({id:Date.now().toString(),description:$('tx-description').value.trim(),amount:+$('tx-amount').value||0,owner:$('tx-owner').value,category:$('tx-category').value,date:d});
- save();e.target.reset();closeModal('m-tx');ui.month=d.slice(0,7);renderAll()}
+function handleTransactionSubmit(e){e.preventDefault();const d=$('tx-date').value,cat=$('tx-category').value,amt=+$('tx-amount').value||0,inc=cat==='income',cid=inc?'':$('tx-card').value;
+ const tx={id:Date.now().toString(),description:$('tx-description').value.trim(),amount:amt,owner:$('tx-owner').value,category:cat,date:d};
+ if(!inc&&$('tx-tag').value)tx.tag=$('tx-tag').value;
+ const c=cid&&S().creditCards.find(x=>x.id===cid);if(c){c.used=(+c.used||0)+amt;tx.card=cid}
+ S().transactions.unshift(tx);save();e.target.reset();closeModal('m-tx');ui.month=d.slice(0,7);renderAll()}
 function openCard(id){const c=id&&S().creditCards.find(x=>x.id===id);
  $('card-id').value=c?c.id:'';$('card-title').textContent=c?'Editar tarjeta':'Nueva tarjeta';$('card-save').textContent=c?'Guardar cambios':'Guardar tarjeta';
  $('card-name').value=c?c.name:'';$('card-owner').value=c?c.owner:S().activeProfile;$('card-limit').value=c?c.limit:'';$('card-used').value=c?c.used:'';openModal('m-card')}
@@ -301,7 +327,20 @@ function handleCardSubmit(e){e.preventDefault();const id=$('card-id').value,d={n
  if(id)S().creditCards=S().creditCards.map(x=>x.id===id?{...x,...d}:x);else S().creditCards.push({id:'c_'+Date.now(),...d});
  save();closeModal('m-card');renderAll()}
 function deleteCard(id){const c=S().creditCards.find(x=>x.id===id);if(!c||!confirm('¿Eliminar la tarjeta "'+c.name+'"?'))return;S().creditCards=S().creditCards.filter(x=>x.id!==id);save();renderAll()}
-function deleteTransaction(id){if(!confirm('¿Eliminar este movimiento?'))return;S().transactions=S().transactions.filter(t=>t.id!==id);save();renderAll()}
+function deleteTransaction(id){const t=S().transactions.find(x=>x.id===id);if(!t||!confirm('¿Eliminar este movimiento?'))return;
+ const c=t.card&&S().creditCards.find(x=>x.id===t.card);if(c)c.used=Math.max(0,(+c.used||0)-(+t.amount||0));
+ S().transactions=S().transactions.filter(x=>x.id!==id);save();renderAll()}
+function openPay(id){const c=S().creditCards.find(x=>x.id===id);if(!c)return;$('pay-id').value=id;$('pay-title').textContent='Pagar '+c.name;$('pay-info').textContent='Deuda actual: '+formatGs(c.used);$('pay-amount').value=+c.used||'';openModal('m-pay')}
+function handlePay(e){e.preventDefault();const c=S().creditCards.find(x=>x.id===$('pay-id').value);if(!c)return;const amt=Math.min(+$('pay-amount').value||0,+c.used||0);
+ if(amt<=0){alert('Esta tarjeta no tiene deuda para pagar.');return}
+ c.used=(+c.used||0)-amt;c.pagos=(c.pagos||[]).concat({date:new Date().toLocaleDateString('sv'),amount:amt}).slice(-20);save();closeModal('m-pay');renderAll()}
+function downloadBackup(){const s=S(),data={app:'myj',version:APP_VERSION,exported:new Date().toISOString(),incomeMaikel:s.incomeMaikel,incomeJazmin:s.incomeJazmin,incomes:s.incomes,transactions:s.transactions,creditCards:s.creditCards};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='respaldo-myj-'+new Date().toLocaleDateString('sv')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+function loadBackup(ev){const f=ev.target.files[0];ev.target.value='';if(!f)return;const r=new FileReader();
+ r.onload=()=>{let d;try{d=JSON.parse(r.result);if(!Array.isArray(d.transactions)||!Array.isArray(d.creditCards))throw 0}catch(x){alert('El archivo no es un respaldo válido.');return}
+  if(!confirm('Se reemplazarán todos los datos actuales (de los dos) por los del respaldo'+(d.exported?' del '+d.exported.slice(0,10):'')+'. ¿Continuar?'))return;
+  Object.assign(S(),{incomeMaikel:+d.incomeMaikel||0,incomeJazmin:+d.incomeJazmin||0,incomes:d.incomes&&typeof d.incomes==='object'?d.incomes:{},transactions:d.transactions,creditCards:d.creditCards});
+  save();closeModal('m-menu');renderAll();alert('Respaldo cargado.')};r.readAsText(f)}
 function resetAll(){if(!confirm('Se borrarán ingresos, movimientos y tarjetas de los dos. ¿Continuar?')||!confirm('Esta acción no se puede deshacer. ¿Seguro?'))return;Object.assign(S(),{incomeMaikel:0,incomeJazmin:0,incomes:{},transactions:[],creditCards:[]});save();closeModal('m-menu');renderAll()}
 const reconnectFirebase=()=>{window.initFirebase&&window.initFirebase();closeModal('m-menu')};
 addEventListener('DOMContentLoaded',()=>{let p0=null;try{p0=localStorage.getItem('myj-profile')}catch(e){}if(p0)selectProfile(p0);document.querySelectorAll('.app-ver').forEach(e=>e.textContent=APP_VERSION);renderAll()});
