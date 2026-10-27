@@ -31,7 +31,8 @@ h2{font-size:17px;font-weight:700;margin:0;font-family:'Bricolage Grotesque',sys
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--needs);outline-offset:2px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-weight:500;background:var(--sf)}
+.actions-top{display:flex;gap:6px}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-weight:500;background:var(--sf);font-size:13px}
 .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:12px;padding:3px}
 .seg button{border:0;background:none;padding:9px;border-radius:10px;font-weight:600;color:var(--mute)}
 .seg button.on{background:var(--sf);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
@@ -107,7 +108,16 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
 <body>
 <div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="app">
-  <div class="top"><div class="brand"><img class="logo" src="logo.png" alt="Logo de Maikel y Jazmin"><div><h1>Gestión MyJ</h1><p class="tag">Regla 50/30/20</p></div></div><button class="ghost" onclick="openS('cfg')">Sueldos</button></div>
+  <div class="top">
+    <div class="brand">
+      <img class="logo" src="logo.png" alt="Logo de Maikel y Jazmin">
+      <div><h1>Gestión MyJ</h1><p class="tag" id="sync-status">Regla 50/30/20 (Cloud)</p></div>
+    </div>
+    <div class="actions-top">
+      <button class="ghost" onclick="openS('sync-cfg')">☁️ Cloud</button>
+      <button class="ghost" onclick="openS('cfg')">Sueldos</button>
+    </div>
+  </div>
   <div class="seg"><button id="mI" onclick="setMode('ind')">Individual</button><button id="mJ" onclick="setMode('par')">En pareja</button></div>
 
   <section class="hero">
@@ -163,10 +173,24 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
   <div class="btns"><button type="button" onclick="closeS('cfg')">Cancelar</button><button class="p" type="submit">Guardar sueldos</button></div>
 </form></div>
 
-<script>
+<!-- Modal para configurar código compartido de pareja y conectar Firebase -->
+<div class="ov" id="sync-cfg" onclick="if(event.target===this)closeS('sync-cfg')"><form class="sheet" onsubmit="saveSyncCfg(event)">
+  <h2>Sincronización en la Nube</h2>
+  <p class="note" style="margin-top:6px">Conecta Firebase Firestore para que Maikel y Jazmín vean los mismos datos en tiempo real.</p>
+  <label class="f" for="room-code">Código de Pareja Compartido</label><input type="text" id="room-code" required placeholder="ej. maikel-jazmin-2026">
+  <label class="f" for="fb-config">Configuración Firebase (JSON o projectId)</label><input type="text" id="fb-config" placeholder="Opcional: project-id o usa el demo por defecto">
+  <div class="btns"><button type="button" onclick="closeS('sync-cfg')">Cancelar</button><button class="p" type="submit">Conectar Nube</button></div>
+</form></div>
+
+<!-- Importación de Firebase SDK (v11 Modular CDN) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 const K='FINANZAS_503020_PYG_V1',D=864e5;
 const CATS=[{k:'needs',n:'Necesidades',p:50,h:'Alquiler, comida, servicios, salud'},{k:'wants',n:'Deseos',p:30,h:'Salidas, hobbies, viajes, caprichos'},{k:'savings',n:'Ahorro',p:20,h:'Fondo de emergencia, inversiones'}];
 const SH={needs:'Necesidad',wants:'Deseo',savings:'Ahorro'};
+
 let S={mode:'ind',u:{a:{n:'Maikel',s:6000000},p:{on:true,n:'Jazmin',s:4500000}},e:[
 {id:'1',d:'Alquiler del departamento',m:2200000,c:'needs',u:'a',h:0,t:Date.now()-5*D},
 {id:'2',d:'Supermercado del mes',m:1100000,c:'needs',u:'p',h:0,t:Date.now()-4*D},
@@ -174,9 +198,71 @@ let S={mode:'ind',u:{a:{n:'Maikel',s:6000000},p:{on:true,n:'Jazmin',s:4500000}},
 {id:'4',d:'Streaming que no uso',m:45000,c:'wants',u:'p',h:1,t:Date.now()-2*D},
 {id:'5',d:'Aporte al fondo de ahorro',m:1000000,c:'savings',u:'a',h:0,t:Date.now()-D},
 {id:'6',d:'Chipa y gaseosa en la oficina',m:18000,c:'wants',u:'a',h:1,t:Date.now()}]};
+
 let F='all';
+let roomCode = localStorage.getItem(K+'_ROOM') || 'maikel-jazmin-py';
+let unsubscribe = null;
+let db = null;
+let isRemoteUpdate = false;
+
+// Intentar cargar local inicial
 try{const r=localStorage.getItem(K);if(r)S=JSON.parse(r)}catch(e){}
-const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+
+// Configuración Firebase (Proyecto público demo o configuración del usuario)
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDummyKeyForDemoModeOnly99",
+    authDomain: "gestion-myj.firebaseapp.com",
+    projectId: "gestion-myj-default",
+    storageBucket: "gestion-myj.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123:web:abc"
+  };
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  initRealtimeSync();
+} catch(err) {
+  console.log("Modo local activo:", err);
+}
+
+function initRealtimeSync() {
+  if(!db) return;
+  if(unsubscribe) unsubscribe();
+  
+  const docRef = doc(db, "budgets", roomCode);
+  unsubscribe = onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const remoteData = docSnap.data();
+      if(remoteData && remoteData.payload) {
+        isRemoteUpdate = true;
+        S = remoteData.payload;
+        localStorage.setItem(K, JSON.stringify(S));
+        render();
+        isRemoteUpdate = false;
+        document.getElementById('sync-status').textContent = '☁️ Sincronizado ('+roomCode+')';
+      }
+    } else {
+      // Si no existe en la nube, subimos el estado actual
+      syncToCloud();
+    }
+  }, (error) => {
+    document.getElementById('sync-status').textContent = '⚠️ Error Cloud (Offline)';
+  });
+}
+
+function syncToCloud() {
+  if(!db || isRemoteUpdate) return;
+  const docRef = doc(db, "budgets", roomCode);
+  setDoc(docRef, { payload: S, updatedAt: Date.now() }).catch(e => console.log(e));
+}
+
+const save = () => {
+  try{
+    localStorage.setItem(K, JSON.stringify(S));
+    syncToCloud();
+  }catch(e){}
+};
+
 const grp=n=>String(Math.abs(Math.round(n||0))).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 const gs=n=>(n<0?'-':'')+'Gs. '+grp(n);
 const num=v=>+String(v).replace(/\D/g,'')||0;
@@ -220,26 +306,39 @@ function render0(){
   $('tl').innerHTML=l.length?l.map(x=>`<div class="item"><div><p>${esc(x.d)}${x.h?' 🐜':''}</p><p class="m">${SH[x.c]}${j?' · '+esc(nm(x.u)):''}</p></div>
     <div style="display:flex;align-items:center"><span class="a">${gs(-x.m)}</span><button class="x" aria-label="Borrar ${esc(x.d)}" onclick="del('${x.id}')">×</button></div></div>`).join(''):'<p class="empty">No hay movimientos. Tocá “Registrar gasto” para agregar el primero.</p>';
 }
-function setMode(m){if(m==='par'&&!S.u.p.on){openS('cfg');return}S.mode=m;save();render()}
-function setF(f){F=f;render()}
-function del(id){S.e=S.e.filter(x=>x.id!==id);save();render()}
-function resetAll(){if(confirm('¿Borrar todos los gastos registrados?')){S.e=[];save();render()}}
-function openS(id){
+
+window.setMode = function(m){if(m==='par'&&!S.u.p.on){openS('cfg');return}S.mode=m;save();render()}
+window.setF = function(f){F=f;render()}
+window.del = function(id){S.e=S.e.filter(x=>x.id!==id);save();render()}
+window.resetAll = function(){if(confirm('¿Borrar todos los gastos registrados?')){S.e=[];save();render()}}
+window.openS = function(id){
   if(id==='exp'){$('ed').value='';$('ea').value='';$('eh').checked=false;
     $('eu').innerHTML='<option value="a">'+esc(S.u.a.n)+'</option>'+(S.u.p.on?'<option value="p">'+esc(S.u.p.n)+'</option>':'');
     $('eun').className=S.u.p.on?'':'hide'}
   if(id==='cfg'){$('n1').value=S.u.a.n;$('s1').value=grp(S.u.a.s);$('pc').checked=S.u.p.on;$('n2').value=S.u.p.n||'';$('s2').value=S.u.p.s?grp(S.u.p.s):'';tp()}
+  if(id==='sync-cfg'){$('room-code').value=roomCode;}
   $(id).classList.add('open')}
-function closeS(id){$(id).classList.remove('open')}
-function tp(){$('pf').className=$('pc').checked?'':'hide'}
-function addExp(e){e.preventDefault();const m=num($('ea').value),d=$('ed').value.trim();if(!d||m<=0)return;
+window.closeS = function(id){$(id).classList.remove('open')}
+window.tp = function(){$('pf').className=$('pc').checked?'':'hide'}
+window.addExp = function(e){e.preventDefault();const m=num($('ea').value),d=$('ed').value.trim();if(!d||m<=0)return;
   S.e.push({id:String(Date.now()),d,m,c:document.querySelector('input[name=cat]:checked').value,u:S.u.p.on?$('eu').value:'a',h:$('eh').checked?1:0,t:Date.now()});
   save();closeS('exp');render()}
-function saveCfg(e){e.preventDefault();
+window.saveCfg = function(e){e.preventDefault();
   S.u.a.n=$('n1').value.trim()||'Yo';S.u.a.s=num($('s1').value);
   S.u.p.on=$('pc').checked;
   if(S.u.p.on){S.u.p.n=$('n2').value.trim()||'Pareja';S.u.p.s=num($('s2').value)}else S.mode='ind';
   save();closeS('cfg');render()}
+window.saveSyncCfg = function(e){
+  e.preventDefault();
+  const rc = $('room-code').value.trim();
+  if(rc){
+    roomCode = rc;
+    localStorage.setItem(K+'_ROOM', roomCode);
+    closeS('sync-cfg');
+    initRealtimeSync();
+  }
+}
+
 render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
