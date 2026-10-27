@@ -103,6 +103,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
     <button class="jz" onclick="selectProfile('jazmin')"><i class="fa-solid fa-user-astronaut"></i>Jazmín</button>
   </div>
   <small id="login-status" style="margin-top:26px;color:#8f98ad">Modo local</small>
+  <small style="margin-top:6px;color:#8f98ad;opacity:.8">Versión <span class="app-ver">3.0.0</span></small>
 </div>
 
 <header class="top"><div class="wrap">
@@ -201,10 +202,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:0 0
   <div class="card" style="background:var(--soft);border:0"><b style="font-size:13px"><i class="fa-solid fa-cloud"></i> Sincronización</b><p id="fb-text" style="font-size:13px;color:var(--mut);margin-top:4px">Modo local.</p></div>
   <button class="btn sec" style="margin-bottom:10px" onclick="reconnectFirebase()"><i class="fa-solid fa-rotate"></i> Reintentar sincronización</button>
   <button class="btn sec" onclick="closeModal('m-menu');showProfileSelection()"><i class="fa-solid fa-right-from-bracket"></i> Cambiar de usuario</button>
-  <p style="text-align:center;font-size:12px;color:var(--mut);margin-top:14px">Finanzas M&J · v3.0.0</p>
+  <button class="btn sec" style="margin-top:10px;color:var(--bad)" onclick="resetAll()"><i class="fa-solid fa-trash-can"></i> Borrar todos los datos</button>
+  <p style="text-align:center;font-size:12px;color:var(--mut);margin-top:14px">Finanzas M&J · v<span class="app-ver">3.0.0</span></p>
 </div></div>
 
 <script>
+const APP_VERSION='3.0.0';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatGs=n=>'Gs. '+Math.round(n||0).toLocaleString('es-PY');
@@ -217,16 +220,7 @@ const NAME={maikel:'Maikel',jazmin:'Jazmín'};
 
 // ---- Estado ----
 const nowKey=mKey(new Date());
-const seed=()=>{const t=[],d=(k,day)=>`${k}-${String(day).padStart(2,'0')}`;
- [[0,1],[1,.92],[2,1.08],[3,.85],[4,1.15],[5,.95]].forEach(([b,f])=>{const k=addM(nowKey,-b);
-  t.push({id:'s'+b+'a',description:'Supermercado',amount:Math.round(350000*f),owner:'maikel',category:'needs',date:d(k,3)},
-   {id:'s'+b+'b',description:'Alquiler y servicios',amount:Math.round(1900000*f),owner:'jazmin',category:'needs',date:d(k,5)},
-   {id:'s'+b+'c',description:'Salida restaurante',amount:Math.round(180000*f),owner:'jazmin',category:'wants',date:d(k,12)},
-   {id:'s'+b+'d',description:'Café y empanadas',amount:Math.round(15000*f*3),owner:'maikel',category:'ant',date:d(k,8)},
-   {id:'s'+b+'e',description:'Ahorro mensual',amount:Math.round(500000*(2-f)),owner:'maikel',category:'savings',date:d(k,28)})});
- return t};
-window.appState={activeProfile:'maikel',viewMode:'individual',incomeMaikel:4500000,incomeJazmin:4200000,incomes:{},transactions:seed(),
- creditCards:[{id:'c1',name:'Visa Itaú',owner:'maikel',limit:8000000,used:2100000},{id:'c2',name:'Mastercard Sudameris',owner:'jazmin',limit:6000000,used:1200000}]};
+window.appState={activeProfile:'maikel',viewMode:'individual',incomeMaikel:0,incomeJazmin:0,incomes:{},transactions:[],creditCards:[]};
 const ui={month:nowKey,tab:'home',range:6,filter:'all'};
 const S=()=>window.appState, save=()=>window.saveAppState&&window.saveAppState();
 
@@ -243,7 +237,7 @@ function toggleTheme(){const r=document.documentElement,d=r.dataset.theme==='dar
 const openModal=id=>{if(id==='m-tx')$('tx-date').value=(ui.month===nowKey?new Date().toLocaleDateString('sv'):ui.month+'-01');$(id).classList.add('on')};
 const closeModal=id=>$(id).classList.remove('on');
 function openIncome(){const i=S().incomes[ui.month]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
- $('income-maikel').value=i.maikel;$('income-jazmin').value=i.jazmin;$('inc-month').textContent=mLabel(ui.month,1);openModal('m-income')}
+ $('income-maikel').value=i.maikel||'';$('income-jazmin').value=i.jazmin||'';$('inc-month').textContent=mLabel(ui.month,1);openModal('m-income')}
 function selectProfile(p){S().activeProfile=p;S().viewMode='individual';$('login').classList.add('off');renderAll()}
 const showProfileSelection=()=>$('login').classList.remove('off');
 const setViewMode=m=>{S().viewMode=m;renderAll()};
@@ -306,8 +300,9 @@ function handleCardSubmit(e){e.preventDefault();const id=$('card-id').value,d={n
  save();closeModal('m-card');renderAll()}
 function deleteCard(id){const c=S().creditCards.find(x=>x.id===id);if(!c||!confirm('¿Eliminar la tarjeta "'+c.name+'"?'))return;S().creditCards=S().creditCards.filter(x=>x.id!==id);save();renderAll()}
 function deleteTransaction(id){if(!confirm('¿Eliminar este movimiento?'))return;S().transactions=S().transactions.filter(t=>t.id!==id);save();renderAll()}
+function resetAll(){if(!confirm('Se borrarán ingresos, movimientos y tarjetas de los dos. ¿Continuar?')||!confirm('Esta acción no se puede deshacer. ¿Seguro?'))return;Object.assign(S(),{incomeMaikel:0,incomeJazmin:0,incomes:{},transactions:[],creditCards:[]});save();closeModal('m-menu');renderAll()}
 const reconnectFirebase=()=>{window.initFirebase&&window.initFirebase();closeModal('m-menu')};
-addEventListener('DOMContentLoaded',renderAll);
+addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.app-ver').forEach(e=>e.textContent=APP_VERSION);renderAll()});
 </script>
 
 <script type="module">
