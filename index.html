@@ -12,10 +12,10 @@
 <meta name="apple-mobile-web-app-title" content="Gestión MyJ">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F2F4F7;--sf:#fff;--ink:#101828;--mute:#667085;--line:#E4E7EC;--needs:#1D5FD1;--wants:#E4631A;--save:#0E9F6E;--over:#C81E1E;--acc:#101828;--onacc:#fff;--bo:.3;
+:root{--bg:#F2F4F7;--sf:#fff;--ink:#101828;--mute:#667085;--line:#E4E7EC;--needs:#1D5FD1;--wants:#E4631A;--save:#0E9F6E;--card:#7C3AED;--over:#C81E1E;--acc:#101828;--onacc:#fff;--bo:.3;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1117;--sf:#161B22;--ink:#F0F3F6;--mute:#9AA4B2;--line:#262D38;--needs:#5B9BFF;--wants:#FF8A4C;--save:#34D399;--over:#FF6B6B;--acc:#F0F3F6;--onacc:#0D1117;--bo:.2}}
-:root[data-theme="dark"]{--bg:#0D1117;--sf:#161B22;--ink:#F0F3F6;--mute:#9AA4B2;--line:#262D38;--needs:#5B9BFF;--wants:#FF8A4C;--save:#34D399;--over:#FF6B6B;--acc:#F0F3F6;--onacc:#0D1117;--bo:.2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1117;--sf:#161B22;--ink:#F0F3F6;--mute:#9AA4B2;--line:#262D38;--needs:#5B9BFF;--wants:#FF8A4C;--save:#34D399;--card:#A78BFA;--over:#FF6B6B;--acc:#F0F3F6;--onacc:#0D1117;--bo:.2}}
+:root[data-theme="dark"]{--bg:#0D1117;--sf:#161B22;--ink:#F0F3F6;--mute:#9AA4B2;--line:#262D38;--needs:#5B9BFF;--wants:#FF8A4C;--save:#34D399;--card:#A78BFA;--over:#FF6B6B;--acc:#F0F3F6;--onacc:#0D1117;--bo:.2}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'Instrument Sans',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -23,7 +23,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'Instrument S
 h1,.big,.num{font-family:'Bricolage Grotesque','Instrument Sans',system-ui,sans-serif}
 h1{font-size:21px;font-weight:800;margin:0;line-height:1.1}
 .brand{display:flex;align-items:center;gap:12px}
-.logo{width:72px;height:72px;object-fit:contain;animation:bob 4.5s ease-in-out infinite}
+.logo{width:72px;height:72px;object-fit:contain}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo{filter:brightness(1.7) saturate(1.15)}}
 :root[data-theme="dark"] .logo{filter:brightness(1.7) saturate(1.15)}
 .tag{margin:2px 0 0;font-size:13px;color:var(--mute)}
@@ -33,10 +33,13 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .actions-top{display:flex;gap:6px}
 .ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-weight:500;background:var(--sf);font-size:13px}
-.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:12px;padding:3px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:12px;padding:3px;margin-bottom:8px}
 .seg button{border:0;background:none;padding:9px;border-radius:10px;font-weight:600;color:var(--mute)}
 .seg button.on{background:var(--sf);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
-.hero{padding:26px 2px 8px}
+.user-bar{display:flex;gap:6px;margin-bottom:12px}
+.user-bar button{flex:1;border:1px solid var(--line);background:var(--sf);padding:8px;border-radius:10px;font-weight:600;font-size:13px;color:var(--mute)}
+.user-bar button.on{border-color:var(--acc);background:var(--acc);color:var(--onacc)}
+.hero{padding:20px 2px 8px}
 .lbl{margin:0;color:var(--mute);font-weight:500}
 .big{font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:4px 0 6px;font-variant-numeric:tabular-nums}
 .big.neg{color:var(--over)}
@@ -45,7 +48,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .bar i{display:block;background:color-mix(in srgb,var(--c) 22%,transparent);border-radius:5px;overflow:hidden}
 .bar b{display:block;height:100%;background:var(--c);transition:width .6s}
 .legend{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:6px}
-.legend span:nth-child(1){flex:5}.legend span:nth-child(2){flex:3}.legend span:nth-child(3){flex:2;text-align:right}
 .card{background:color-mix(in srgb,var(--sf) 84%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
 .row+.row{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
 .rh{display:flex;justify-content:space-between;align-items:baseline}
@@ -76,7 +78,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .sheet{background:var(--sf);width:100%;max-width:480px;margin:0 auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:92%;overflow-y:auto}
 label.f{display:block;font-size:13px;font-weight:600;margin:14px 0 5px}
 input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
-.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .cats label{cursor:pointer}.cats input{position:absolute;opacity:0}
 .cats span{display:block;text-align:center;padding:10px 4px;border:1.5px solid var(--line);border-radius:12px;font-size:13px;font-weight:600}
 .cats input:checked+span{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
@@ -92,16 +94,10 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
 .bg i:nth-child(1){background:var(--needs);top:-12%;left:-22%}
 .bg i:nth-child(2){background:var(--wants);top:38%;right:-28%;animation-duration:26s;animation-delay:-9s}
 .bg i:nth-child(3){background:var(--save);bottom:-14%;left:-8%;animation-duration:23s;animation-delay:-15s}
-.app>section{animation:up .6s both}
-.app>section:nth-of-type(2){animation-delay:.08s}.app>section:nth-of-type(3){animation-delay:.16s}.app>section:nth-of-type(4){animation-delay:.24s}
-.cta{animation:ring 3.6s ease-out infinite}
 @keyframes drift{to{transform:translate(26vw,-14vh) scale(1.2)}}
-@keyframes up{from{opacity:0;transform:translateY(16px)}}
-@keyframes bob{50%{transform:translateY(-4px) rotate(-3deg)}}
 @keyframes pulse{50%{opacity:.6}}
 @keyframes fade{from{opacity:0}}
 @keyframes slide{from{transform:translateY(100%)}}
-@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 40%,transparent)}60%,100%{box-shadow:0 0 0 14px transparent}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -118,6 +114,12 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
       <button class="ghost" onclick="openS('cfg')">Sueldos</button>
     </div>
   </div>
+  
+  <div class="user-bar">
+    <button id="uA" onclick="setActiveUser('a')">👤 Maikel</button>
+    <button id="uP" onclick="setActiveUser('p')">👤 Jazmín</button>
+  </div>
+
   <div class="seg"><button id="mI" onclick="setMode('ind')">Individual</button><button id="mJ" onclick="setMode('par')">En pareja</button></div>
 
   <section class="hero">
@@ -127,6 +129,14 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
   </section>
 
   <section class="card" id="cats"></section>
+
+  <!-- Módulo de Tarjetas de Crédito -->
+  <section class="card" style="--c:var(--card)">
+    <div class="rh"><b>Tarjeta de Crédito</b><button class="ghost" style="padding:4px 8px;font-size:12px" onclick="openS('cc-cfg')">Configurar</button></div>
+    <p class="hint" id="cc-hint">Límite y consumos del mes</p>
+    <div class="track"><i id="cc-bar" data-w="0" style="width:0"></i></div>
+    <div class="rn"><span id="cc-spent">Gastado Gs. 0</span><span id="cc-avail">Disponible Gs. 0</span></div>
+  </section>
 
   <section class="card">
     <h2>Gastos hormiga</h2>
@@ -146,21 +156,24 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
 
 <div class="dock"><button class="cta" onclick="openS('exp')">Registrar gasto</button></div>
 
+<!-- Modal Registrar Gasto -->
 <div class="ov" id="exp" onclick="if(event.target===this)closeS('exp')"><form class="sheet" onsubmit="addExp(event)">
   <h2>Registrar gasto</h2>
-  <label class="f" for="ed">Descripción</label><input type="text" id="ed" required placeholder="Ej.: Supermercado, tereré, Netflix">
+  <label class="f" for="ed">Descripción</label><input type="text" id="ed" required placeholder="Ej.: Supermercado, tereré, cuota tarjeta">
   <label class="f" for="ea">Monto en guaraníes</label><input type="text" id="ea" inputmode="numeric" required placeholder="Gs. 0" oninput="fm(this)">
-  <div id="eun"><label class="f" for="eu">Pagó</label><select id="eu"></select></div>
+  <div id="eun"><label class="f" for="eu">Pagó / Usuario</label><select id="eu"></select></div>
   <label class="f">Categoría</label>
   <div class="cats">
     <label style="--c:var(--needs)"><input type="radio" name="cat" value="needs" checked><span>Necesidad</span></label>
     <label style="--c:var(--wants)"><input type="radio" name="cat" value="wants"><span>Deseo</span></label>
     <label style="--c:var(--save)"><input type="radio" name="cat" value="savings"><span>Ahorro</span></label>
+    <label style="--c:var(--card)"><input type="radio" name="cat" value="credit"><span style="color:var(--card)">Tarjeta Cr.</span></label>
   </div>
   <label class="chk"><input type="checkbox" id="eh"> Es un gasto hormiga (chico, repetido y prescindible)</label>
   <div class="btns"><button type="button" onclick="closeS('exp')">Cancelar</button><button class="p" type="submit">Guardar gasto</button></div>
 </form></div>
 
+<!-- Modal Configurar Sueldos -->
 <div class="ov" id="cfg" onclick="if(event.target===this)closeS('cfg')"><form class="sheet" onsubmit="saveCfg(event)">
   <h2>Sueldos</h2>
   <label class="f" for="n1">Tu nombre</label><input type="text" id="n1" required>
@@ -173,31 +186,35 @@ input[type=text],select{width:100%;padding:12px;border:1px solid var(--line);bor
   <div class="btns"><button type="button" onclick="closeS('cfg')">Cancelar</button><button class="p" type="submit">Guardar sueldos</button></div>
 </form></div>
 
-<!-- Modal para configurar código compartido de pareja y conectar Firebase -->
+<!-- Modal Configurar Tarjeta de Crédito -->
+<div class="ov" id="cc-cfg" onclick="if(event.target===this)closeS('cc-cfg')"><form class="sheet" onsubmit="saveCCfg(event)">
+  <h2>Límite Tarjeta de Crédito</h2>
+  <label class="f" for="cc-lim">Límite total de la tarjeta en Gs.</label><input type="text" id="cc-lim" inputmode="numeric" required oninput="fm(this)">
+  <div class="btns"><button type="button" onclick="closeS('cc-cfg')">Cancelar</button><button class="p" type="submit">Guardar Límite</button></div>
+</form></div>
+
+<!-- Modal Configurar Nube -->
 <div class="ov" id="sync-cfg" onclick="if(event.target===this)closeS('sync-cfg')"><form class="sheet" onsubmit="saveSyncCfg(event)">
   <h2>Sincronización en la Nube</h2>
   <p class="note" style="margin-top:6px">Conecta Firebase Firestore para que Maikel y Jazmín vean los mismos datos en tiempo real.</p>
   <label class="f" for="room-code">Código de Pareja Compartido</label><input type="text" id="room-code" required placeholder="ej. maikel-jazmin-2026">
-  <label class="f" for="fb-config">Configuración Firebase (JSON o projectId)</label><input type="text" id="fb-config" placeholder="Opcional: project-id o usa el demo por defecto">
   <div class="btns"><button type="button" onclick="closeS('sync-cfg')">Cancelar</button><button class="p" type="submit">Conectar Nube</button></div>
 </form></div>
 
-<!-- Importación de Firebase SDK (v11 Modular CDN) -->
+<!-- Importación de Firebase SDK y lógica -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-const K='FINANZAS_503020_PYG_V1',D=864e5;
+const K='FINANZAS_503020_PYG_V2',D=864e5;
 const CATS=[{k:'needs',n:'Necesidades',p:50,h:'Alquiler, comida, servicios, salud'},{k:'wants',n:'Deseos',p:30,h:'Salidas, hobbies, viajes, caprichos'},{k:'savings',n:'Ahorro',p:20,h:'Fondo de emergencia, inversiones'}];
-const SH={needs:'Necesidad',wants:'Deseo',savings:'Ahorro'};
+const SH={needs:'Necesidad',wants:'Deseo',savings:'Ahorro',credit:'Tarjeta Cr.'};
 
-let S={mode:'ind',u:{a:{n:'Maikel',s:6000000},p:{on:true,n:'Jazmin',s:4500000}},e:[
+let S={activeUser:'a',mode:'ind',ccLimit:5000000,u:{a:{n:'Maikel',s:6000000},p:{on:true,n:'Jazmin',s:4500000}},e:[
 {id:'1',d:'Alquiler del departamento',m:2200000,c:'needs',u:'a',h:0,t:Date.now()-5*D},
 {id:'2',d:'Supermercado del mes',m:1100000,c:'needs',u:'p',h:0,t:Date.now()-4*D},
 {id:'3',d:'Café de paso',m:12000,c:'wants',u:'a',h:1,t:Date.now()-3*D},
-{id:'4',d:'Streaming que no uso',m:45000,c:'wants',u:'p',h:1,t:Date.now()-2*D},
-{id:'5',d:'Aporte al fondo de ahorro',m:1000000,c:'savings',u:'a',h:0,t:Date.now()-D},
-{id:'6',d:'Chipa y gaseosa en la oficina',m:18000,c:'wants',u:'a',h:1,t:Date.now()}]};
+{id:'4',d:'Compra con tarjeta',m:350000,c:'credit',u:'a',h:0,t:Date.now()-2*D}]};
 
 let F='all';
 let roomCode = localStorage.getItem(K+'_ROOM') || 'maikel-jazmin-py';
@@ -205,10 +222,8 @@ let unsubscribe = null;
 let db = null;
 let isRemoteUpdate = false;
 
-// Intentar cargar local inicial
 try{const r=localStorage.getItem(K);if(r)S=JSON.parse(r)}catch(e){}
 
-// Configuración Firebase (Proyecto público demo o configuración del usuario)
 try {
   const firebaseConfig = {
     apiKey: "AIzaSyDummyKeyForDemoModeOnly99",
@@ -242,7 +257,6 @@ function initRealtimeSync() {
         document.getElementById('sync-status').textContent = '☁️ Sincronizado ('+roomCode+')';
       }
     } else {
-      // Si no existe en la nube, subimos el estado actual
       syncToCloud();
     }
   }, (error) => {
@@ -270,8 +284,14 @@ const fm=el=>{el.value=el.value?grp(num(el.value)):''};
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const $=id=>document.getElementById(id);
 
-function ctx(){const j=S.mode==='par'&&S.u.p.on;
-  return{j,sal:S.u.a.s+(j?S.u.p.s:0),ex:S.e.filter(x=>j||x.u==='a')}}
+function ctx(){
+  const j=S.mode==='par'&&S.u.p.on;
+  const activeUser = S.activeUser || 'a';
+  // Si está en modo individual, filtramos por el usuario activo seleccionado
+  const ex = S.e.filter(x => j || x.u === activeUser);
+  const sal = j ? (S.u.a.s + S.u.p.s) : (activeUser === 'a' ? S.u.a.s : S.u.p.s);
+  return {j, sal, ex, activeUser};
+}
 function nm(u){return u==='p'?S.u.p.n:S.u.a.n}
 
 function grow(){document.querySelectorAll('[data-w]').forEach(e=>e.style.width=e.dataset.w+'%')}
@@ -280,33 +300,53 @@ function tween(el,to){const from=+el.dataset.v||0;el.dataset.v=to;
   const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/800),e=1-Math.pow(1-p,3);el.textContent=gs(from+(to-from)*e);if(p<1)requestAnimationFrame(f)})(t0)}
 function render(){render0();setTimeout(grow,40)}
 function render0(){
-  const{j,sal,ex}=ctx();
-  const b={},sp={needs:0,wants:0,savings:0};
+  const{j,sal,ex,activeUser}=ctx();
+  const b={},sp={needs:0,wants:0,savings:0,credit:0};
   CATS.forEach(c=>b[c.k]=sal*c.p/100);
   ex.forEach(x=>{if(sp[x.c]!==undefined)sp[x.c]+=x.m});
+
+  $('uA').className = activeUser==='a'?'on':'';
+  $('uP').className = activeUser==='p'?'on':'';
+  $('uA').textContent = '👤 ' + S.u.a.n;
+  $('uP').textContent = '👤 ' + (S.u.p.n || 'Jazmín');
+
   $('mI').className=j?'':'on';$('mJ').className=j?'on':'';
   const left=b.needs+b.wants-sp.needs-sp.wants;
   $('hl').textContent=left<0?'Te pasaste por':'Te queda para gastar';
   tween($('hb'),Math.abs(left));$('hb').className='big'+(left<0?' neg':'');
-  $('hs').textContent='Sueldo '+gs(sal)+(j?' ('+S.u.a.n+' y '+S.u.p.n+')':' ('+S.u.a.n+')');
+  $('hs').textContent='Sueldo '+gs(sal)+(j?' ('+S.u.a.n+' y '+S.u.p.n+')':' ('+nm(activeUser)+')');
   $('hbar').innerHTML=CATS.map(c=>{const p=b[c.k]>0?Math.min(100,sp[c.k]/b[c.k]*100):0;
     return `<i style="flex:${c.p};--c:var(--${c.k})"><b data-w="${p}" style="width:0"></b></i>`}).join('');
+  
   $('cats').innerHTML=CATS.map(c=>{const rem=b[c.k]-sp[c.k],p=b[c.k]>0?Math.min(100,sp[c.k]/b[c.k]*100):0,sv=c.k==='savings';
     const right=sv?(rem<=0?'Meta cumplida':'Faltan '+gs(rem)):(rem<0?'Te pasaste '+gs(-rem):'Quedan '+gs(rem));
     return `<div class="row" style="--c:var(--${c.k})"><div class="rh"><b>${c.n}</b><span class="num">${c.p}%</span></div>
     <p class="hint">${c.h}. Presupuesto ${gs(b[c.k])}</p>
     <div class="track ${!sv&&p>=100?'over':''}"><i data-w="${p}" style="width:0"></i></div>
     <div class="rn"><span>${sv?'Ahorrado':'Gastado'} ${gs(sp[c.k])}</span><span class="${!sv&&rem<0?'neg':''}">${right}</span></div></div>`}).join('');
+
+  // Tarjeta de crédito render
+  const ccLimit = S.ccLimit || 5000000;
+  const ccSpent = sp.credit;
+  const ccAvail = ccLimit - ccSpent;
+  const ccPct = Math.min(100, (ccSpent/ccLimit)*100);
+  $('cc-bar').style.width = ccPct+'%';
+  $('cc-bar').parentElement.className = 'track'+(ccSpent>ccLimit?' over':'');
+  $('cc-spent').textContent = 'Consumido '+gs(ccSpent);
+  $('cc-avail').textContent = 'Disponible '+gs(ccAvail);
+  $('cc-hint').textContent = 'Límite total: '+gs(ccLimit);
+
   const ant=ex.filter(x=>x.h),yr=ant.reduce((s,x)=>s+x.m,0)*12;
   $('an').textContent=gs(yr)+' al año';
   $('am').textContent=yr===0?'No registraste gastos hormiga.':yr<1500000?'Impacto moderado: es dinero que podría ir a tu ahorro.':'Impacto alto: este monto sirve para un fondo de emergencia o unas vacaciones.';
   $('al').innerHTML=ant.length?ant.map(x=>`<div class="item"><p>🐜 ${esc(x.d)}</p><p class="a neg">${gs(x.m)} <span class="m">(${gs(x.m*12)}/año)</span></p></div>`).join(''):'<p class="empty">Todavía no marcaste ningún gasto como hormiga.</p>';
   $('fA').className='chip'+(F==='all'?' on':'');$('fH').className='chip'+(F==='ant'?' on':'');
   const l=ex.filter(x=>F==='all'||x.h).sort((a,c)=>c.t-a.t);
-  $('tl').innerHTML=l.length?l.map(x=>`<div class="item"><div><p>${esc(x.d)}${x.h?' 🐜':''}</p><p class="m">${SH[x.c]}${j?' · '+esc(nm(x.u)):''}</p></div>
+  $('tl').innerHTML=l.length?l.map(x=>`<div class="item"><div><p>${esc(x.d)}${x.h?' 🐜':''}</p><p class="m">${SH[x.c]} · ${esc(nm(x.u))}</p></div>
     <div style="display:flex;align-items:center"><span class="a">${gs(-x.m)}</span><button class="x" aria-label="Borrar ${esc(x.d)}" onclick="del('${x.id}')">×</button></div></div>`).join(''):'<p class="empty">No hay movimientos. Tocá “Registrar gasto” para agregar el primero.</p>';
 }
 
+window.setActiveUser = function(u){S.activeUser = u;save();render()}
 window.setMode = function(m){if(m==='par'&&!S.u.p.on){openS('cfg');return}S.mode=m;save();render()}
 window.setF = function(f){F=f;render()}
 window.del = function(id){S.e=S.e.filter(x=>x.id!==id);save();render()}
@@ -314,20 +354,25 @@ window.resetAll = function(){if(confirm('¿Borrar todos los gastos registrados?'
 window.openS = function(id){
   if(id==='exp'){$('ed').value='';$('ea').value='';$('eh').checked=false;
     $('eu').innerHTML='<option value="a">'+esc(S.u.a.n)+'</option>'+(S.u.p.on?'<option value="p">'+esc(S.u.p.n)+'</option>':'');
-    $('eun').className=S.u.p.on?'':'hide'}
+    $('eu').value = S.activeUser;
+    $('eun').className=''}
   if(id==='cfg'){$('n1').value=S.u.a.n;$('s1').value=grp(S.u.a.s);$('pc').checked=S.u.p.on;$('n2').value=S.u.p.n||'';$('s2').value=S.u.p.s?grp(S.u.p.s):'';tp()}
+  if(id==='cc-cfg'){$('cc-lim').value=grp(S.ccLimit||5000000);}
   if(id==='sync-cfg'){$('room-code').value=roomCode;}
   $(id).classList.add('open')}
 window.closeS = function(id){$(id).classList.remove('open')}
 window.tp = function(){$('pf').className=$('pc').checked?'':'hide'}
 window.addExp = function(e){e.preventDefault();const m=num($('ea').value),d=$('ed').value.trim();if(!d||m<=0)return;
-  S.e.push({id:String(Date.now()),d,m,c:document.querySelector('input[name=cat]:checked').value,u:S.u.p.on?$('eu').value:'a',h:$('eh').checked?1:0,t:Date.now()});
+  S.e.push({id:String(Date.now()),d,m,c:document.querySelector('input[name=cat]:checked').value,u:$('eu').value,h:$('eh').checked?1:0,t:Date.now()});
   save();closeS('exp');render()}
 window.saveCfg = function(e){e.preventDefault();
-  S.u.a.n=$('n1').value.trim()||'Yo';S.u.a.s=num($('s1').value);
+  S.u.a.n=$('n1').value.trim()||'Maikel';S.u.a.s=num($('s1').value);
   S.u.p.on=$('pc').checked;
-  if(S.u.p.on){S.u.p.n=$('n2').value.trim()||'Pareja';S.u.p.s=num($('s2').value)}else S.mode='ind';
+  if(S.u.p.on){S.u.p.n=$('n2').value.trim()||'Jazmín';S.u.p.s=num($('s2').value)}else S.mode='ind';
   save();closeS('cfg');render()}
+window.saveCCfg = function(e){e.preventDefault();
+  S.ccLimit = num($('cc-lim').value);
+  save();closeS('cc-cfg');render()}
 window.saveSyncCfg = function(e){
   e.preventDefault();
   const rc = $('room-code').value.trim();
