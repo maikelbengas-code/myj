@@ -240,7 +240,7 @@ const closeModal=id=>$(id).classList.remove('on');
 function openExtra(){openModal('m-tx');$('tx-category').value='income';$('tx-owner').value=S().activeProfile;$('tx-description').placeholder='Ej. Bono, venta, changa'}
 function openIncome(){const i=S().incomes[ui.month]||{maikel:S().incomeMaikel,jazmin:S().incomeJazmin};
  $('income-maikel').value=i.maikel||'';$('income-jazmin').value=i.jazmin||'';$('inc-month').textContent=mLabel(ui.month,1);openModal('m-income')}
-function selectProfile(p){S().activeProfile=p;S().viewMode='individual';$('login').classList.add('off');renderAll()}
+function selectProfile(p){try{localStorage.setItem('myj-profile',p)}catch(e){}S().activeProfile=p;S().viewMode='individual';$('login').classList.add('off');renderAll()}
 const showProfileSelection=()=>$('login').classList.remove('off');
 const setViewMode=m=>{S().viewMode=m;renderAll()};
 const shiftMonth=n=>{ui.month=addM(ui.month,n);renderAll()};
@@ -304,34 +304,26 @@ function deleteCard(id){const c=S().creditCards.find(x=>x.id===id);if(!c||!confi
 function deleteTransaction(id){if(!confirm('¿Eliminar este movimiento?'))return;S().transactions=S().transactions.filter(t=>t.id!==id);save();renderAll()}
 function resetAll(){if(!confirm('Se borrarán ingresos, movimientos y tarjetas de los dos. ¿Continuar?')||!confirm('Esta acción no se puede deshacer. ¿Seguro?'))return;Object.assign(S(),{incomeMaikel:0,incomeJazmin:0,incomes:{},transactions:[],creditCards:[]});save();closeModal('m-menu');renderAll()}
 const reconnectFirebase=()=>{window.initFirebase&&window.initFirebase();closeModal('m-menu')};
-addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.app-ver').forEach(e=>e.textContent=APP_VERSION);renderAll()});
+addEventListener('DOMContentLoaded',()=>{let p0=null;try{p0=localStorage.getItem('myj-profile')}catch(e){}if(p0)selectProfile(p0);document.querySelectorAll('.app-ver').forEach(e=>e.textContent=APP_VERSION);renderAll()});
 </script>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import{getAuth,signInAnonymously,signInWithCustomToken,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import{getFirestore,doc,onSnapshot,setDoc}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-const appId=typeof __app_id!=='undefined'?__app_id:'maikel-jazmin-finanzas';
-// ====== PEGA AQUÍ LA CONFIGURACIÓN DE TU PROYECTO FIREBASE ======
-const MY_FIREBASE_CONFIG={apiKey:"AIzaSyDDXMrbjx4nMXcUMP2rlx8b123U9LkaER4",authDomain:"myjfinanz.firebaseapp.com",projectId:"myjfinanz",storageBucket:"myjfinanz.firebasestorage.app",messagingSenderId:"949117469445",appId:"1:949117469445:web:b450b3e483ec5fbc83ad6c"};
-// =================================================================
-const firebaseConfig=typeof __firebase_config!=='undefined'?JSON.parse(__firebase_config):MY_FIREBASE_CONFIG;
-const configured=!!firebaseConfig.apiKey&&!/PEGAR|demo-key/.test(firebaseConfig.apiKey)&&!!firebaseConfig.projectId;
-let app,db,auth,ready=false,listening=false;
-const ref=()=>doc(db,'artifacts',appId,'public','data','budget_shared','main');
-function status(ok,msg){const d=document.getElementById('fb-dot');d.className='dot'+(ok?' on':'');
- document.getElementById('login-status').textContent=ok?'Sincronizado con Firebase':'Modo local (sin sincronizar)';
+const firebaseConfig={apiKey:"AIzaSyDDXMrbjx4nMXcUMP2rlx8b123U9LkaER4",authDomain:"myjfinanz.firebaseapp.com",projectId:"myjfinanz",storageBucket:"myjfinanz.firebasestorage.app",messagingSenderId:"949117469445",appId:"1:949117469445:web:b450b3e483ec5fbc83ad6c"};
+let db,ready=false,listening=false;
+const ref=()=>doc(db,'myj','shared');
+function status(ok,msg){document.getElementById('fb-dot').className='dot'+(ok?' on':'');
+ document.getElementById('login-status').textContent=ok?'Sincronizado':'Modo local (sin sincronizar)';
  document.getElementById('fb-text').textContent=ok?'Sincronización en tiempo real activa.':(msg||'Modo local. Los cambios no se comparten.')}
-async function initFirebase(){if(!configured){status(false,'Falta pegar la configuración de Firebase en index.html.');return}
- try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
- if(typeof __initial_auth_token!=='undefined'&&__initial_auth_token)await signInWithCustomToken(auth,__initial_auth_token);else await signInAnonymously(auth);
- onAuthStateChanged(auth,u=>{if(u){ready=true;status(true);listen()}})}catch(e){console.warn('Modo local:',e);status(false,e.code==='auth/operation-not-allowed'?'Activa el acceso Anónimo en Firebase (Authentication).':'No se pudo conectar: '+(e.code||e.message))}}
+function initFirebase(){try{db=getFirestore(initializeApp(firebaseConfig));ready=true;listen()}catch(e){console.warn(e);status(false,'No se pudo conectar: '+(e.code||e.message))}}
 function listen(){if(listening)return;listening=true;
- onSnapshot(ref(),snap=>{if(snap.exists()){const d=snap.data(),s=window.appState;
+ onSnapshot(ref(),snap=>{status(true);if(snap.exists()){const d=snap.data(),s=window.appState;
   s.incomeMaikel=d.incomeMaikel??s.incomeMaikel;s.incomeJazmin=d.incomeJazmin??s.incomeJazmin;s.incomes=d.incomes??s.incomes;
-  s.transactions=d.transactions??s.transactions;s.creditCards=d.creditCards??s.creditCards;renderAll()}else save()},e=>{console.error(e);status(false,'Sin permiso: revisa las reglas de Firestore.')})}
+  s.transactions=d.transactions??s.transactions;s.creditCards=d.creditCards??s.creditCards;renderAll()}else save()},
+ e=>{console.error(e);listening=false;status(false,e.code==='permission-denied'?'Sin permiso: revisa las reglas de Firestore.':'Sin conexión. Se reintentará solo.')})}
 async function save(){if(!ready||!db)return;const s=window.appState;
- try{await setDoc(ref(),{incomeMaikel:s.incomeMaikel,incomeJazmin:s.incomeJazmin,incomes:s.incomes,transactions:s.transactions,creditCards:s.creditCards,lastUpdated:new Date().toISOString()},{merge:true})}catch(e){console.error(e)}}
+ try{await setDoc(ref(),{incomeMaikel:s.incomeMaikel,incomeJazmin:s.incomeJazmin,incomes:s.incomes,transactions:s.transactions,creditCards:s.creditCards,lastUpdated:new Date().toISOString()},{merge:true})}catch(e){console.error(e);status(false,'No se pudo guardar: '+(e.code||e.message))}}
 window.saveAppState=save;window.initFirebase=initFirebase;initFirebase();
 </script>
 <script>if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
